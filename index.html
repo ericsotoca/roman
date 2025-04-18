@@ -54,6 +54,14 @@
         let speechSynthesisUtterance = null;
         let isSpeaking = false;
 
+        // Vérification de la compatibilité de l'API Web Speech
+        if ('speechSynthesis' in window) {
+            console.log("L'API Web Speech est supportée par ce navigateur.");
+        } else {
+            console.log("L'API Web Speech n'est pas supportée par ce navigateur.");
+            alert("L'API Web Speech n'est pas supportée par ce navigateur. Veuillez utiliser un navigateur moderne comme Chrome, Firefox, Safari, ou Edge.");
+        }
+
         // Fonction pour charger les histoires
         async function loadStories() {
             const stories = [
