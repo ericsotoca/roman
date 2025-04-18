@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -17,7 +18,7 @@
             min-height: 100vh;
             color: #333;
         }
-        
+
         .container {
             width: 90%;
             max-width: 800px;
@@ -192,11 +193,25 @@
             margin: 20px 0;
             font-weight: bold;
         }
+
+        .compatibility-message {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+            display: none;
+        }
     </style>
+
 </head>
 <body>
     <div class="container">
         <h1><i class="fas fa-book-open"></i> Lecteur d'Histoires</h1>
+        <div id="compatibility-warning" class="compatibility-message">
+            <i class="fas fa-exclamation-triangle"></i> 
+            Sur certains appareils mobiles, la synthèse vocale peut nécessiter des permissions ou ne pas fonctionner correctement.
+        </div>
         <div id="stories">
             <div class="loading-text">
                 <div class="loader"></div> Chargement des histoires...
@@ -207,153 +222,185 @@
         Lecteur d'histoires - Profitez d'une lecture à haute voix
     </div>
 
-    <script>
-        const storiesContainer = document.getElementById('stories');
-        let currentlyPlaying = null;
+<script>
+    const storiesContainer = document.getElementById('stories');
+    const compatibilityWarning = document.getElementById('compatibility-warning');
+    let currentlyPlaying = null;
+    const isMobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
 
-        // Fonction pour charger les histoires
-        async function loadStories() {
-            const stories = [
-                'histoire1.txt', 'histoire2.txt', 'histoire3.txt',
-                'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
-                'histoire7.txt', 'histoire8.txt', 'histoire9.txt'
-            ];
-            
-            // Effacer le message de chargement
-            storiesContainer.innerHTML = '';
-            
-            let loadedStories = 0;
-            let errorOccurred = false;
+    // Vérification de la compatibilité
+    function checkCompatibility() {
+        if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+            compatibilityWarning.style.display = 'block';
+            compatibilityWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Votre navigateur ne prend pas en charge la synthèse vocale.';
+            return false;
+        }
+        
+        if (isMobile) {
+            compatibilityWarning.style.display = 'block';
+        }
+        
+        return true;
+    }
 
-            for (let i = 0; i < stories.length; i++) {
-                const story = stories[i];
-                try {
-                    // Essayer de charger le fichier texte
-                    const response = await fetch(`stories/${story}`);
-                    
-                    if (!response.ok) {
-                        throw new Error(`Erreur lors du chargement de ${story}: ${response.status}`);
-                    }
-                    
-                    const text = await response.text();
-                    
-                    // Extraire le titre de la première ligne
-                    const title = text.split('\n')[0].trim() || `Histoire ${i+1}`;
-                    
-                    createStoryElement(story, title, text);
-                    loadedStories++;
-                } catch (error) {
-                    console.error(error);
-                    errorOccurred = true;
-                    
-                    // En cas d'erreur, utiliser un titre par défaut et un contenu d'exemple
-                    createStoryElement(
-                        story, 
-                        `Histoire ${i+1}`, 
-                        `Histoire ${i+1}\n\nCeci est un exemple de contenu pour l'histoire ${i+1}. Veuillez vérifier que les fichiers texte sont bien présents dans le dossier "stories".`
-                    );
+    // Fonction pour charger les histoires
+    async function loadStories() {
+        const stories = [
+            'histoire1.txt', 'histoire2.txt', 'histoire3.txt',
+            'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
+            'histoire7.txt', 'histoire8.txt', 'histoire9.txt'
+        ];
+        
+        // Vérifier la compatibilité
+        checkCompatibility();
+        
+        // Effacer le message de chargement
+        storiesContainer.innerHTML = '';
+        
+        let loadedStories = 0;
+        let errorOccurred = false;
+
+        for (let i = 0; i < stories.length; i++) {
+            const story = stories[i];
+            try {
+                // Essayer de charger le fichier texte
+                // Ajout d'un paramètre cache-buster pour éviter les problèmes de cache
+                const response = await fetch(`stories/${story}?v=${new Date().getTime()}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur lors du chargement de ${story}: ${response.status}`);
                 }
-            }
-            
-            // Afficher un message si des erreurs se sont produites
-            if (errorOccurred) {
-                const errorMessage = document.createElement('div');
-                errorMessage.className = 'error-message';
-                errorMessage.innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i> 
-                    Certains fichiers d'histoires n'ont pas pu être chargés. 
-                    Veuillez vérifier que les fichiers existent dans le dossier "stories".
-                `;
-                storiesContainer.appendChild(errorMessage);
+                
+                const text = await response.text();
+                
+                // Extraire le titre de la première ligne
+                const title = text.split('\n')[0].trim() || `Histoire ${i+1}`;
+                
+                createStoryElement(story, title, text);
+                loadedStories++;
+            } catch (error) {
+                console.error(error);
+                errorOccurred = true;
+                
+                // En cas d'erreur, utiliser un titre par défaut et un contenu d'exemple
+                createStoryElement(
+                    story, 
+                    `Histoire ${i+1}`, 
+                    `Histoire ${i+1}\n\nCeci est un exemple de contenu pour l'histoire ${i+1}. Veuillez vérifier que les fichiers texte sont bien présents dans le dossier "stories".`
+                );
             }
         }
+        
+        // Afficher un message si des erreurs se sont produites
+        if (errorOccurred) {
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            errorMessage.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i> 
+                Certains fichiers d'histoires n'ont pas pu être chargés. 
+                Veuillez vérifier que les fichiers existent dans le dossier "stories".
+            `;
+            storiesContainer.appendChild(errorMessage);
+        }
+    }
 
-        // Fonction pour créer l'élément d'une histoire
-        function createStoryElement(id, title, text) {
-            const storyElement = document.createElement('div');
-            storyElement.className = 'story';
-            storyElement.dataset.id = id;
-            
-            // Créer l'en-tête de l'histoire avec indicateur et titre
-            const storyHeader = document.createElement('div');
-            storyHeader.className = 'story-header';
-            
-            const statusIndicator = document.createElement('div');
-            statusIndicator.className = 'status-indicator';
-            
-            const titleElement = document.createElement('div');
-            titleElement.className = 'story-title';
-            titleElement.textContent = title;
-            
-            storyHeader.appendChild(statusIndicator);
-            storyHeader.appendChild(titleElement);
-            
-            // Créer la zone des contrôles
-            const controlsElement = document.createElement('div');
-            controlsElement.className = 'story-controls';
-            
-            // Bouton Play
-            const playButton = document.createElement('button');
-            playButton.className = 'btn btn-play';
-            playButton.innerHTML = '<i class="fas fa-play"></i> Lire';
-            playButton.addEventListener('click', () => readStory(id, text, statusIndicator, playButton, pauseButton, stopButton));
-            
-            // Bouton Pause
-            const pauseButton = document.createElement('button');
-            pauseButton.className = 'btn btn-pause';
-            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
-            pauseButton.disabled = true;
-            pauseButton.addEventListener('click', () => pauseStory(id));
-            
-            // Bouton Stop
-            const stopButton = document.createElement('button');
-            stopButton.className = 'btn btn-stop';
-            stopButton.innerHTML = '<i class="fas fa-stop"></i> Stop';
-            stopButton.disabled = true;
-            stopButton.addEventListener('click', () => stopStory(id));
-            
-            controlsElement.appendChild(playButton);
-            controlsElement.appendChild(pauseButton);
-            controlsElement.appendChild(stopButton);
-            
-            storyElement.appendChild(storyHeader);
-            storyElement.appendChild(controlsElement);
-            
-            storiesContainer.appendChild(storyElement);
+    // Fonction pour créer l'élément d'une histoire
+    function createStoryElement(id, title, text) {
+        const storyElement = document.createElement('div');
+        storyElement.className = 'story';
+        storyElement.dataset.id = id;
+        
+        // Créer l'en-tête de l'histoire avec indicateur et titre
+        const storyHeader = document.createElement('div');
+        storyHeader.className = 'story-header';
+        
+        const statusIndicator = document.createElement('div');
+        statusIndicator.className = 'status-indicator';
+        
+        const titleElement = document.createElement('div');
+        titleElement.className = 'story-title';
+        titleElement.textContent = title;
+        
+        storyHeader.appendChild(statusIndicator);
+        storyHeader.appendChild(titleElement);
+        
+        // Créer la zone des contrôles
+        const controlsElement = document.createElement('div');
+        controlsElement.className = 'story-controls';
+        
+        // Bouton Play
+        const playButton = document.createElement('button');
+        playButton.className = 'btn btn-play';
+        playButton.innerHTML = '<i class="fas fa-play"></i> Lire';
+        playButton.addEventListener('click', () => readStory(id, text, statusIndicator, playButton, pauseButton, stopButton));
+        
+        // Bouton Pause
+        const pauseButton = document.createElement('button');
+        pauseButton.className = 'btn btn-pause';
+        pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+        pauseButton.disabled = true;
+        pauseButton.addEventListener('click', () => pauseStory(id));
+        
+        // Bouton Stop
+        const stopButton = document.createElement('button');
+        stopButton.className = 'btn btn-stop';
+        stopButton.innerHTML = '<i class="fas fa-stop"></i> Stop';
+        stopButton.disabled = true;
+        stopButton.addEventListener('click', () => stopStory(id));
+        
+        controlsElement.appendChild(playButton);
+        controlsElement.appendChild(pauseButton);
+        controlsElement.appendChild(stopButton);
+        
+        storyElement.appendChild(storyHeader);
+        storyElement.appendChild(controlsElement);
+        
+        storiesContainer.appendChild(storyElement);
+    }
+
+    // Gérer l'état des synthèses vocales
+    const speechSynthesisMap = {};
+
+    // Fonction pour lire une histoire à haute voix
+    function readStory(id, text, statusIndicator, playButton, pauseButton, stopButton) {
+        // Arrêter l'histoire en cours s'il y en a une
+        if (currentlyPlaying && currentlyPlaying !== id) {
+            const currentId = currentlyPlaying;
+            stopStory(currentId);
+        }
+        
+        // Si c'est déjà cette histoire qui joue, ne rien faire
+        if (currentlyPlaying === id) return;
+        
+        // Vérification de la prise en charge
+        if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+            alert("Votre navigateur ne prend pas en charge la synthèse vocale.");
+            return;
         }
 
-        // Gérer l'état des synthèses vocales
-        const speechSynthesisMap = {};
-
-        // Fonction pour lire une histoire à haute voix
-        function readStory(id, text, statusIndicator, playButton, pauseButton, stopButton) {
-            // Arrêter l'histoire en cours s'il y en a une
-            if (currentlyPlaying && currentlyPlaying !== id) {
-                const currentId = currentlyPlaying;
-                stopStory(currentId);
-            }
-            
-            // Si c'est déjà cette histoire qui joue, ne rien faire
-            if (currentlyPlaying === id) return;
-            
+        // Approche différente pour mobile et desktop
+        if (!isMobile) {
+            // Code normal pour PC
             // Créer une nouvelle instance de SpeechSynthesisUtterance
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'fr-FR';
 
-            // Forcer l'initialisation des voix (important pour mobile)
+            // Forcer l'initialisation des voix
             let voices = window.speechSynthesis.getVoices();
             
-            // Pour Chrome sur Android, on doit attendre que les voix soient chargées
+            // Pour Chrome, on doit attendre que les voix soient chargées
             if (voices.length === 0) {
                 window.speechSynthesis.onvoiceschanged = function() {
                     voices = window.speechSynthesis.getVoices();
-                    setFrenchVoice();
+                    setFrenchVoice(utterance, voices);
+                    startSpeaking(utterance);
                 };
             } else {
-                setFrenchVoice();
+                setFrenchVoice(utterance, voices);
+                startSpeaking(utterance);
             }
             
-            function setFrenchVoice() {
+            function setFrenchVoice(utterance, voices) {
                 // Essayer d'abord une voix française
                 const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
                 if (frenchVoice) {
@@ -365,9 +412,10 @@
                     utterance.voice = voices[0];
                 }
                 
-                // Pour les appareils iOS, il faut ajuster le volume
                 utterance.volume = 1; // Max volume
-                
+            }
+            
+            function startSpeaking(utterance) {
                 // Stocker l'instance de la synthèse vocale
                 speechSynthesisMap[id] = {
                     utterance: utterance,
@@ -382,14 +430,6 @@
                 try {
                     window.speechSynthesis.cancel(); // Arrêter toute synthèse en cours
                     window.speechSynthesis.speak(utterance);
-                    
-                    // Activer le contrôle vocal pour iOS
-                    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                        setTimeout(() => {
-                            window.speechSynthesis.pause();
-                            window.speechSynthesis.resume();
-                        }, 100);
-                    }
                     
                     // Mettre à jour l'interface
                     statusIndicator.classList.add('status-active');
@@ -410,65 +450,187 @@
                     resetStoryState(id);
                 }
             }
-        }
-
-        // Fonction pour mettre en pause une histoire
-        function pauseStory(id) {
-            const storyData = speechSynthesisMap[id];
-            
-            if (storyData && !storyData.isPaused) {
-                window.speechSynthesis.pause();
-                storyData.isPaused = true;
-                storyData.pauseButton.innerHTML = '<i class="fas fa-play"></i> Reprendre';
-                storyData.statusIndicator.style.animationPlayState = 'paused';
-            } else if (storyData && storyData.isPaused) {
-                window.speechSynthesis.resume();
-                storyData.isPaused = false;
-                storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
-                storyData.statusIndicator.style.animationPlayState = 'running';
-            }
-        }
-
-        // Fonction pour arrêter la lecture
-        function stopStory(id) {
-            window.speechSynthesis.cancel();
-            resetStoryState(id);
-            currentlyPlaying = null;
-        }
-
-        // Fonction pour réinitialiser l'état de l'interface d'une histoire
-        function resetStoryState(id) {
-            const storyData = speechSynthesisMap[id];
-            
-            if (storyData) {
-                storyData.statusIndicator.classList.remove('status-active');
-                storyData.statusIndicator.style.animationPlayState = '';
-                storyData.playButton.disabled = false;
-                storyData.pauseButton.disabled = true;
-                storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
-                storyData.stopButton.disabled = true;
+        } else {
+            // Code spécifique pour mobile
+            try {
+                // Approche simplifiée pour mobile
+                window.speechSynthesis.cancel(); // Arrêter toute synthèse en cours
                 
-                // Supprimer les données de cette histoire
-                delete speechSynthesisMap[id];
+                const mobileUtterance = new SpeechSynthesisUtterance();
+                
+                // Sur mobile, le texte long peut causer des problèmes
+                // Diviser le texte en paragraphes plus courts si nécessaire
+                const paragraphs = text.split('\n\n');
+                let currentParagraph = 0;
+                
+                // Fonction pour parler le paragraphe actuel
+                function speakCurrentParagraph() {
+                    if (currentParagraph < paragraphs.length) {
+                        const currentText = paragraphs[currentParagraph];
+                        mobileUtterance.text = currentText;
+                        mobileUtterance.lang = 'fr-FR';
+                        
+                        // Essayer de définir une voix française si disponible
+                        const voices = window.speechSynthesis.getVoices();
+                        const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
+                        if (frenchVoice) {
+                            mobileUtterance.voice = frenchVoice;
+                        }
+                        
+                        // Parler le paragraphe actuel
+                        window.speechSynthesis.speak(mobileUtterance);
+                        
+                        // Avancer au paragraphe suivant quand celui-ci est terminé
+                        mobileUtterance.onend = function() {
+                            currentParagraph++;
+                            if (currentParagraph < paragraphs.length && currentlyPlaying === id) {
+                                // Continuer si on n'a pas arrêté la lecture
+                                speakCurrentParagraph();
+                            } else {
+                                // Fin de l'histoire
+                                resetStoryState(id);
+                            }
+                        };
+                    }
+                }
+                
+                // Commencer la lecture
+                speakCurrentParagraph();
+                
+                // Mettre à jour l'interface
+                statusIndicator.classList.add('status-active');
+                playButton.disabled = true;
+                pauseButton.disabled = false;
+                stopButton.disabled = false;
+                
+                // Définir l'histoire en cours
+                currentlyPlaying = id;
+                
+                // Stocker les références
+                speechSynthesisMap[id] = {
+                    utterance: mobileUtterance,
+                    statusIndicator: statusIndicator,
+                    playButton: playButton,
+                    pauseButton: pauseButton,
+                    stopButton: stopButton,
+                    isPaused: false,
+                    currentParagraph: currentParagraph,
+                    paragraphs: paragraphs,
+                    speakFunction: speakCurrentParagraph
+                };
+                
+                // Sur iOS, forcer la synthèse à démarrer
+                if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                    setTimeout(() => {
+                        window.speechSynthesis.pause();
+                        window.speechSynthesis.resume();
+                    }, 100);
+                }
+            } catch (error) {
+                console.error("Erreur mobile:", error);
+                alert("Impossible de lire l'histoire sur votre appareil mobile. Veuillez vérifier que votre appareil prend en charge la synthèse vocale.");
+                resetStoryState(id);
             }
         }
+    }
 
-        // Hack pour iOS qui nécessite une interaction utilisateur avant de pouvoir jouer du son
-        function setupAudioForIOS() {
+    // Fonction pour mettre en pause une histoire
+    function pauseStory(id) {
+        const storyData = speechSynthesisMap[id];
+        
+        if (storyData && !storyData.isPaused) {
+            window.speechSynthesis.pause();
+            storyData.isPaused = true;
+            storyData.pauseButton.innerHTML = '<i class="fas fa-play"></i> Reprendre';
+            storyData.statusIndicator.style.animationPlayState = 'paused';
+        } else if (storyData && storyData.isPaused) {
+            window.speechSynthesis.resume();
+            storyData.isPaused = false;
+            storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            storyData.statusIndicator.style.animationPlayState = 'running';
+            
+            // Sur iOS, forcer la reprise
             if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                document.body.addEventListener('click', function() {
-                    const silence = new SpeechSynthesisUtterance('');
-                    silence.volume = 0;
-                    window.speechSynthesis.speak(silence);
-                }, { once: true });
+                setTimeout(() => {
+                    window.speechSynthesis.pause();
+                    window.speechSynthesis.resume();
+                }, 100);
             }
         }
+    }
 
-        // Initialiser au chargement
-        document.addEventListener('DOMContentLoaded', () => {
-            loadStories();
-            setupAudioForIOS();
-        });
-    </script>
+    // Fonction pour arrêter la lecture
+    function stopStory(id) {
+        window.speechSynthesis.cancel();
+        resetStoryState(id);
+        currentlyPlaying = null;
+    }
+
+    // Fonction pour réinitialiser l'état de l'interface d'une histoire
+    function resetStoryState(id) {
+        const storyData = speechSynthesisMap[id];
+        
+        if (storyData) {
+            storyData.statusIndicator.classList.remove('status-active');
+            storyData.statusIndicator.style.animationPlayState = '';
+            storyData.playButton.disabled = false;
+            storyData.pauseButton.disabled = true;
+            storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            storyData.stopButton.disabled = true;
+            
+            // Supprimer les données de cette histoire
+            delete speechSynthesisMap[id];
+        }
+    }
+
+    // Setup pour tous les appareils
+    function setupAudio() {
+        if (isMobile) {
+            document.body.addEventListener('click', function() {
+                setTimeout(() => {
+                    try {
+                        // Initialiser la synthèse vocale avec un texte vide
+                        const silence = new SpeechSynthesisUtterance('');
+                        silence.volume = 0;
+                        window.speechSynthesis.speak(silence);
+                        
+                        // Sur iOS, il faut aussi parfois faire pause/resume
+                        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                            setTimeout(() => {
+                                window.speechSynthesis.pause();
+                                window.speechSynthesis.resume();
+                            }, 100);
+                        }
+                    } catch (e) {
+                        console.error("Erreur lors de l'initialisation audio:", e);
+                    }
+                }, 500);
+            }, { once: true });
+        }
+    }
+
+    // Vérifier régulièrement si la synthèse s'est arrêtée de manière inattendue
+    function setupWatchdog() {
+        if (isMobile) {
+            setInterval(() => {
+                if (currentlyPlaying) {
+                    const storyData = speechSynthesisMap[currentlyPlaying];
+                    if (storyData && !storyData.isPaused && !window.speechSynthesis.speaking) {
+                        // La synthèse s'est arrêtée sans qu'on le demande, essayer de la relancer
+                        console.log("Watchdog: détection d'un arrêt inattendu de la synthèse vocale");
+                        window.speechSynthesis.resume();
+                    }
+                }
+            }, 1000);
+        }
+    }
+
+    // Initialiser au chargement
+    document.addEventListener('DOMContentLoaded', () => {
+        loadStories();
+        setupAudio();
+        setupWatchdog();
+    });
+</script>
 </body>
 </html>
