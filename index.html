@@ -55,9 +55,7 @@
 
         // Fonction pour charger les histoires
         async function loadStories() {
-            const stories = ['histoire1.txt', 'histoire2.txt', 'histoire3.txt',
-                'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
-                'histoire7.txt', 'histoire8.txt', 'histoire9.txt];
+            const stories = ['histoire1.txt', 'histoire2.txt', 'histoire3.txt', 'histoire4.txt', 'histoire5.txt', 'histoire6.txt', 'histoire7.txt', 'histoire8.txt', 'histoire9.txt'];
 
             for (const story of stories) {
                 const response = await fetch(`stories/${story}`);
