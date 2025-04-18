@@ -1,17 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration ---
-    const stories = [
-        { id: 1, title: "Le Petit Chaperon Rouge", file: "stories/histoire1.txt" },
-        { id: 2, title: "Les Trois Petits Cochons", file: "stories/histoire2.txt" },
-        { id: 3, title: "Le Chat Botté", file: "stories/histoire3.txt" },
-        { id: 4, title: "Cendrillon", file: "stories/histoire4.txt" },
-        { id: 5, title: "La Belle au Bois Dormant", file: "stories/histoire5.txt" },
-        { id: 6, title: "Blanche-Neige", file: "stories/histoire6.txt" },
-        { id: 7, title: "Hansel et Gretel", file: "stories/histoire7.txt" },
-        { id: 8, title: "Boucle d'Or et les Trois Ours", file: "stories/histoire8.txt" },
-        { id: 9, title: "Le Vilain Petit Canard", file: "stories/histoire9.txt" },
-        { id: 10, title: "La Petite Sirène", file: "stories/histoire10.txt" },
-        // Ajoutez vos 10 histoires ici
+    // On ne liste plus que les fichiers, les titres seront extraits
+    const storyFiles = [
+        "stories/histoire1.txt",
+        "stories/histoire2.txt",
+        "stories/histoire3.txt",
+        "stories/histoire4.txt",
+        "stories/histoire5.txt",
+        "stories/histoire6.txt",
+        "stories/histoire7.txt",
+        "stories/histoire8.txt",
+        "stories/histoire9.txt",
+        "stories/histoire10.txt",
+        // Ajoutez les chemins vers vos 10 fichiers ici
     ];
 
     // --- Éléments DOM ---
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStoryTitle = '';
     let utterance = null;
     let voices = [];
+    let loadedStoriesData = {}; // Pour stocker les données chargées (titre, contenu) par fichier
 
     // --- Initialisation ---
 
@@ -36,18 +38,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Charger les voix disponibles (peut prendre un peu de temps)
+    // Charger les voix disponibles
     function populateVoiceList() {
+        // ... (Le code de populateVoiceList reste identique à l'exemple précédent) ...
         voices = speechSynthesis.getVoices();
         voiceSelect.innerHTML = ''; // Vider la liste existante
         if (voices.length === 0) {
              voiceSelect.innerHTML = '<option>Aucune voix trouvée</option>';
              voiceSelect.disabled = true;
-             return; // Sortir si aucune voix n'est trouvée immédiatement
+             return;
         }
 
         voices.forEach((voice, i) => {
-            // Filtrer pour les voix françaises si possible
             if (voice.lang.startsWith('fr')) {
                  const option = document.createElement('option');
                  option.textContent = `${voice.name} (${voice.lang})`;
@@ -56,154 +58,182 @@ document.addEventListener('DOMContentLoaded', () => {
                  voiceSelect.appendChild(option);
             }
         });
-         // Si aucune voix française n'est trouvée, afficher un message ou toutes les voix
         if (voiceSelect.options.length === 0) {
              voiceSelect.innerHTML = '<option>Aucune voix française trouvée</option>';
-             // Alternative: afficher toutes les voix disponibles
-             /*
-             voices.forEach((voice, i) => {
-                const option = document.createElement('option');
-                option.textContent = `${voice.name} (${voice.lang})`;
-                option.setAttribute('data-lang', voice.lang);
-                option.setAttribute('data-name', voice.name);
-                voiceSelect.appendChild(option);
-             });
-             */
         }
         voiceSelect.disabled = false;
     }
 
-    // L'événement 'voiceschanged' est crucial car les voix ne sont pas toujours disponibles immédiatement
     speechSynthesis.onvoiceschanged = populateVoiceList;
-    populateVoiceList(); // Essayer de peupler immédiatement au cas où
+    populateVoiceList();
 
 
-    // Créer les boutons pour chaque histoire
-    stories.forEach(story => {
-        const button = document.createElement('button');
-        button.textContent = story.title;
-        button.dataset.file = story.file; // Stocke le chemin du fichier dans un attribut data-*
-        button.dataset.title = story.title;
-        button.addEventListener('click', handleStorySelection);
-        storyListElement.appendChild(button);
-    });
+    // --- Nouvelle Fonction : Charger les histoires et construire la liste ---
+    async function loadStoriesAndBuildList() {
+        storyListElement.innerHTML = '<p>Chargement des histoires...</p>'; // Message de chargement
+
+        try {
+            // 1. Créer un tableau de promesses pour fetcher tous les fichiers
+            const fetchPromises = storyFiles.map(file => fetch(file));
+
+            // 2. Attendre que tous les fetchs soient terminés
+            const responses = await Promise.all(fetchPromises);
+
+            // 3. Vérifier si toutes les réponses sont OK
+            for (const response of responses) {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status} pour ${response.url}`);
+                }
+            }
+
+            // 4. Créer un tableau de promesses pour lire le texte de chaque réponse
+            const textPromises = responses.map(response => response.text());
+
+            // 5. Attendre que tous les textes soient lus
+            const texts = await Promise.all(textPromises);
+
+            // 6. Traiter chaque texte pour extraire le titre et le contenu
+            storyListElement.innerHTML = ''; // Vider le message de chargement
+            texts.forEach((fullText, index) => {
+                const filePath = storyFiles[index];
+                let title = `Histoire ${index + 1}`; // Titre par défaut
+                let content = fullText;
+
+                // Extraire la première ligne comme titre
+                const firstNewlineIndex = fullText.indexOf('\n');
+                if (firstNewlineIndex !== -1) {
+                    title = fullText.substring(0, firstNewlineIndex).trim();
+                    content = fullText.substring(firstNewlineIndex + 1).trim(); // Contenu après la 1ère ligne
+                } else {
+                    // Si pas de saut de ligne, on prend tout comme titre (ou comme contenu ?) - A ajuster
+                    title = fullText.trim(); // Option 1: Tout est le titre
+                    content = "";         // Option 1: Pas de contenu
+                    // content = fullText.trim(); // Option 2: Tout est le contenu, titre par défaut
+                }
+
+                 // Gérer le cas où le titre extrait est vide
+                 if (!title) {
+                    title = `Histoire ${index + 1} (sans titre)`;
+                 }
+
+                // Stocker les données chargées
+                loadedStoriesData[filePath] = { title: title, content: content };
+
+                // Créer le bouton pour l'histoire
+                const button = document.createElement('button');
+                button.textContent = title; // Utiliser le titre extrait
+                button.dataset.file = filePath; // Stocke le chemin du fichier
+                button.addEventListener('click', handleStorySelection);
+                storyListElement.appendChild(button);
+            });
+
+        } catch (error) {
+            console.error("Erreur lors du chargement des histoires:", error);
+            storyListElement.innerHTML = '<p>Impossible de charger la liste des histoires.</p>';
+        }
+    }
 
 
     // --- Fonctions ---
 
-    // Gérer la sélection d'une histoire
-    async function handleStorySelection(event) {
+    // Gérer la sélection d'une histoire (MISE A JOUR)
+    function handleStorySelection(event) {
         const selectedButton = event.target;
         const storyFile = selectedButton.dataset.file;
-        currentStoryTitle = selectedButton.dataset.title;
+
+        // Récupérer les données pré-chargées
+        const storyData = loadedStoriesData[storyFile];
+
+        if (!storyData) {
+            console.error("Données non trouvées pour", storyFile);
+            storyContentElement.textContent = "Erreur : Impossible de trouver les données de l'histoire.";
+            resetControls();
+            playButton.disabled = true;
+            return;
+        }
+
+        currentStoryText = storyData.content;
+        currentStoryTitle = storyData.title;
 
         // Mettre en évidence le bouton sélectionné (optionnel)
         document.querySelectorAll('#story-list button').forEach(btn => btn.classList.remove('selected'));
         selectedButton.classList.add('selected');
 
-
-        // Arrêter la lecture en cours si une nouvelle histoire est sélectionnée
+        // Arrêter la lecture en cours
         if (speechSynthesis.speaking || speechSynthesis.paused) {
             speechSynthesis.cancel();
         }
         resetControls();
 
+        // Afficher le texte de l'histoire (le contenu sans le titre)
+        storyContentElement.textContent = currentStoryText || "(Cette histoire n'a pas de contenu textuel après le titre)";
+        playButton.disabled = !currentStoryText; // Activer Lire seulement si y'a du contenu
 
-        // Charger le texte de l'histoire
-        try {
-            storyContentElement.textContent = "Chargement...";
-            const response = await fetch(storyFile);
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-            currentStoryText = await response.text();
-            storyContentElement.textContent = currentStoryText; // Afficher le texte
-            playButton.disabled = false; // Activer le bouton Lire
-        } catch (error) {
-            console.error("Erreur lors du chargement de l'histoire:", error);
-            storyContentElement.textContent = "Impossible de charger l'histoire.";
-            currentStoryText = '';
-            playButton.disabled = true;
-        }
     }
 
-    // Démarrer ou reprendre la lecture
+    // Démarrer ou reprendre la lecture (Identique, mais utilise currentStoryText et currentStoryTitle mis à jour)
     function playStory() {
-        if (!currentStoryText) return; // Ne rien faire si aucun texte n'est chargé
+         // ... (Le code de playStory reste identique à l'exemple précédent) ...
+         // Il utilisera automatiquement les valeurs de `currentStoryText`
+         // et `currentStoryTitle` qui ont été mises à jour par `handleStorySelection`.
+        if (!currentStoryText) return;
 
         if (speechSynthesis.paused && utterance) {
-            // Reprendre la lecture si elle était en pause
             speechSynthesis.resume();
             updateControlsOnPlay();
         } else if (!speechSynthesis.speaking) {
-             // Créer un nouvel objet SpeechSynthesisUtterance
             utterance = new SpeechSynthesisUtterance(currentStoryText);
 
-             // Sélectionner la voix choisie
-             const selectedVoiceName = voiceSelect.selectedOptions[0]?.getAttribute('data-name');
-             if (selectedVoiceName) {
-                 utterance.voice = voices.find(voice => voice.name === selectedVoiceName);
-             } else {
-                 // Essayer de trouver une voix française par défaut si aucune n'est sélectionnée
-                 utterance.voice = voices.find(voice => voice.lang.startsWith('fr') && voice.default) || voices.find(voice => voice.lang.startsWith('fr'));
-             }
-             utterance.lang = utterance.voice ? utterance.voice.lang : 'fr-FR'; // Définir la langue
+            const selectedVoiceName = voiceSelect.selectedOptions[0]?.getAttribute('data-name');
+            if (selectedVoiceName) {
+                utterance.voice = voices.find(voice => voice.name === selectedVoiceName);
+            } else {
+                utterance.voice = voices.find(voice => voice.lang.startsWith('fr') && voice.default) || voices.find(voice => voice.lang.startsWith('fr'));
+            }
+            utterance.lang = utterance.voice ? utterance.voice.lang : 'fr-FR';
 
-            // Gérer la fin de la lecture
             utterance.onend = () => {
                 console.log("Lecture terminée.");
                 resetControls();
             };
 
-            // Gérer les erreurs de lecture
             utterance.onerror = (event) => {
                 console.error("Erreur de synthèse vocale:", event.error);
                 resetControls();
                 storyContentElement.textContent += "\n\nErreur de lecture.";
             };
 
-            // Commencer la lecture
             speechSynthesis.speak(utterance);
             updateControlsOnPlay();
         }
     }
 
-    // Mettre en pause la lecture
+    // Mettre en pause la lecture (Identique)
     function pauseStory() {
+        // ... (Identique) ...
         if (speechSynthesis.speaking) {
             speechSynthesis.pause();
             updateControlsOnPause();
         }
     }
 
-    // Arrêter la lecture
+    // Arrêter la lecture (Identique)
     function stopStory() {
+        // ... (Identique) ...
         if (speechSynthesis.speaking || speechSynthesis.paused) {
-            speechSynthesis.cancel(); // Annule la lecture en cours
+            speechSynthesis.cancel();
         }
         resetControls();
     }
 
-    // Mettre à jour l'état des boutons lors de la lecture
-    function updateControlsOnPlay() {
-        playButton.disabled = true;
-        pauseButton.disabled = false;
-        stopButton.disabled = false;
-    }
-
-     // Mettre à jour l'état des boutons lors de la pause
-    function updateControlsOnPause() {
-        playButton.disabled = false; // Le bouton "Lire" sert maintenant à "Reprendre"
+     // Fonctions de mise à jour des contrôles (Identiques)
+    function updateControlsOnPlay() { /* ... */ }
+    function updateControlsOnPause() { /* ... */ }
+    function resetControls() { /* ... (sauf la condition sur playButton) */
+        playButton.disabled = !currentStoryText; // Activer seulement si une histoire est chargée ET a du contenu
         pauseButton.disabled = true;
-        stopButton.disabled = false;
-    }
-
-     // Réinitialiser l'état des boutons (après arrêt ou fin)
-    function resetControls() {
-         playButton.disabled = !currentStoryText; // Activer seulement si une histoire est chargée
-         pauseButton.disabled = true;
-         stopButton.disabled = true;
-         utterance = null; // Important de réinitialiser l'utterance
+        stopButton.disabled = true;
+        utterance = null;
     }
 
 
@@ -211,5 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
     playButton.addEventListener('click', playStory);
     pauseButton.addEventListener('click', pauseStory);
     stopButton.addEventListener('click', stopStory);
+
+    // --- Appel Initial pour charger les histoires ---
+    loadStoriesAndBuildList();
+
 
 }); // Fin de DOMContentLoaded

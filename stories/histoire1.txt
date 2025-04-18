@@ -1,8 +1,8 @@
-### **Science-Fiction : "Le Tournoi Intergalactique"**
+ Science-Fiction : "Le Tournoi Intergalactique"
 
----
 
-**Chapitre 1 : L'Appel des Étoiles**
+
+Chapitre 1 : L'Appel des Étoiles
 
 Dans les confins de la galaxie, sur la planète Terre, un jeune homme nommé Elias rêvait des étoiles. Depuis son enfance, il était fasciné par l'espace et les civilisations extraterrestres. Mais ce qui le passionnait par-dessus tout, c'était l'awalé, un jeu ancestral qui avait transcendé les frontières de la Terre pour devenir un langage universel parmi les étoiles.
 
@@ -10,9 +10,9 @@ Elias avait toujours été doué pour l'awalé. Il avait appris les règles de s
 
 Un jour, alors qu'il rentrait chez lui après une longue journée de travail, il trouva une lettre étrange dans sa boîte aux lettres. Le papier était d'une texture inconnue, et l'écriture semblait briller légèrement. Intrigué, il ouvrit l'enveloppe et lut le message :
 
----
 
-**Invitation au Tournoi Intergalactique d'Awalé**
+
+Invitation au Tournoi Intergalactique d'Awalé
 
 Cher Elias,
 
@@ -25,15 +25,15 @@ Nous espérons que vous accepterez cette invitation et que vous nous rejoindrez 
 Cordialement,
 Le Comité du Tournoi Intergalactique
 
----
+
 
 Elias relut la lettre plusieurs fois, incrédule. Lui, un simple Terrien, invité à participer à un tournoi intergalactique ? Cela semblait trop beau pour être vrai. Mais l'idée de représenter sa planète et de rencontrer des joueurs venus des quatre coins de la galaxie était trop tentante pour être ignorée.
 
 Il décida d'accepter l'invitation. Après tout, c'était l'opportunité d'une vie, une chance de prouver que les humains pouvaient rivaliser avec les meilleurs joueurs de l'univers.
 
----
 
-**Chapitre 2 : Le Voyage vers Orion**
+
+Chapitre 2 : Le Voyage vers Orion
 
 Quelques jours plus tard, Elias se tenait devant un vaisseau spatial étincelant, prêt à l'emmener vers la station Orion. Il avait dit au revoir à sa famille et à ses amis, leur promettant de revenir avec des histoires incroyables et, peut-être, un trophée.
 
@@ -41,9 +41,9 @@ Le voyage fut une expérience en soi. Elias découvrit des technologies qu'il n'
 
 Lorsqu'il arriva enfin à la station Orion, il fut émerveillé par la diversité des êtres qui peuplaient cet endroit. Des créatures aux formes et aux couleurs variées se mêlaient dans une harmonie surprenante. Elias se sentit soudain très petit, mais aussi incroyablement chanceux de faire partie de cette aventure.
 
----
 
-**Chapitre 3 : Les Premières Rencontres**
+
+Chapitre 3 : Les Premières Rencontres
 
 La station Orion était un véritable labyrinthe de couloirs et de salles, chacune adaptée aux besoins des différentes espèces. Elias fut conduit à ses quartiers, une chambre confortable avec une vue imprenable sur les étoiles. Il avait à peine eu le temps de s'installer que déjà, il était invité à une réception de bienvenue.
 
@@ -51,9 +51,9 @@ Dans la grande salle de réception, il rencontra ses premiers adversaires. Il y 
 
 Elias se sentit intimidé, mais aussi excité. Chaque joueur avait une histoire, une culture et une approche unique du jeu. Il savait que ce tournoi serait bien plus qu'une simple compétition : ce serait une leçon de vie, une exploration des possibilités infinies de l'univers.
 
----
 
-**Chapitre 4 : La Première Partie**
+
+Chapitre 4 : La Première Partie
 
 Le lendemain, le tournoi commença. Elias fut tiré au sort pour affronter Zorak en premier. Le guerrier reptilien était impressionnant, avec ses écailles brillantes et ses yeux perçants. Mais Elias savait que l'apparence ne faisait pas tout. Il se concentra sur le plateau de jeu, prêt à donner le meilleur de lui-même.
 
@@ -61,17 +61,17 @@ La partie fut intense. Zorak jouait de manière agressive, cherchant à capturer
 
 Après plusieurs heures de jeu, Elias parvint à retourner la situation à son avantage. Il captura les dernières graines de Zorak, remportant ainsi sa première victoire. La salle applaudit, et Elias sentit une vague de fierté l'envahir. Il avait prouvé qu'il méritait sa place dans ce tournoi.
 
----
 
-**Chapitre 5 : Les Défis à Venir**
+
+Chapitre 5 : Les Défis à Venir
 
 Les jours suivants furent tout aussi intenses. Elias affronta Lyra, dont les mouvements gracieux cachaient une stratégie redoutable. Il dut faire preuve de patience et de précision pour la battre. Puis ce fut au tour de Kael, dont la maîtrise des règles rendait chaque coup imprévisible.
 
 Mais Elias ne se laissa pas décourager. Il apprenait de chaque partie, adaptant sa stratégie et découvrant de nouvelles façons de jouer. Il se lia aussi d'amitié avec certains de ses adversaires, échangeant des histoires et des conseils.
 
----
 
-**Chapitre 6 : La Finale**
+
+Chapitre 6 : La Finale
 
 Enfin, après des semaines de compétition, Elias se retrouva en finale. Son adversaire était un être mystérieux, venu d'une planète lointaine et inconnue. Il se faisait appeler le Maître des Graines, et sa réputation le précédait.
 
@@ -79,18 +79,18 @@ La partie fut épique. Chaque coup était une bataille de volontés, chaque grai
 
 Finalement, après des heures de jeu, Elias captura la dernière graine. La salle explosa en applaudissements, et il fut déclaré vainqueur du Tournoi Intergalactique d'Awalé. Il avait non seulement prouvé son talent, mais aussi montré que les humains pouvaient rivaliser avec les meilleurs joueurs de l'univers.
 
----
 
-**Épilogue : Le Retour sur Terre**
+
+Épilogue : Le Retour sur Terre
 
 De retour sur Terre, Elias fut accueilli en héros. Il raconta ses aventures, partageant ses connaissances et son amour pour l'awalé. Il savait que ce tournoi avait changé sa vie à jamais, et il était déterminé à continuer à explorer les possibilités infinies de l'univers.
 
 Et ainsi, Elias devint non seulement un champion d'awalé, mais aussi un ambassadeur de la Terre, un pont entre les étoiles et les rêves des hommes.
 
----
 
-**Fin**
 
----
+Fin
+
+
 
 Cette histoire combine des éléments de science-fiction avec la passion pour l'awalé, offrant une aventure captivante à travers les étoiles.
