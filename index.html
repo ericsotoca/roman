@@ -165,12 +165,43 @@
                 font-size: 1.8rem;
             }
         }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.2);
+            border-radius: 50%;
+            border-top-color: #0277bd;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .error-message {
+            color: #f44336;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1><i class="fas fa-book-open"></i> Lecteur d'Histoires</h1>
-        <div id="stories"></div>
+        <div id="stories">
+            <div class="loading-text">
+                <div class="loader"></div> Chargement des histoires...
+            </div>
+        </div>
     </div>
     <div class="footer">
         Lecteur d'histoires - Profitez d'une lecture à haute voix
@@ -183,27 +214,57 @@
         // Fonction pour charger les histoires
         async function loadStories() {
             const stories = [
-                { id: 'histoire1', title: 'Le Petit Chaperon Rouge' },
-                { id: 'histoire2', title: 'Les Trois Petits Cochons' },
-                { id: 'histoire3', title: 'La Belle au Bois Dormant' },
-                { id: 'histoire4', title: 'Cendrillon' },
-                { id: 'histoire5', title: 'Le Chat Botté' },
-                { id: 'histoire6', title: 'Blanche-Neige' },
-                { id: 'histoire7', title: 'La Petite Sirène' },
-                { id: 'histoire8', title: 'Jack et le Haricot Magique' },
-                { id: 'histoire9', title: 'Hansel et Gretel' }
+                'histoire1.txt', 'histoire2.txt', 'histoire3.txt',
+                'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
+                'histoire7.txt', 'histoire8.txt', 'histoire9.txt'
             ];
+            
+            // Effacer le message de chargement
+            storiesContainer.innerHTML = '';
+            
+            let loadedStories = 0;
+            let errorOccurred = false;
 
             for (let i = 0; i < stories.length; i++) {
                 const story = stories[i];
                 try {
-                    // Simuler le contenu de l'histoire (dans une vraie application, vous feriez un fetch)
-                    const text = `${story.title}\n\nIl était une fois ${story.title}, une histoire merveilleuse...`;
-                    createStoryElement(story.id, story.title, text);
+                    // Essayer de charger le fichier texte
+                    const response = await fetch(`stories/${story}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erreur lors du chargement de ${story}: ${response.status}`);
+                    }
+                    
+                    const text = await response.text();
+                    
+                    // Extraire le titre de la première ligne
+                    const title = text.split('\n')[0].trim() || `Histoire ${i+1}`;
+                    
+                    createStoryElement(story, title, text);
+                    loadedStories++;
                 } catch (error) {
                     console.error(error);
-                    createStoryElement(story.id, story.title, `Contenu de l'histoire ${story.title}`);
+                    errorOccurred = true;
+                    
+                    // En cas d'erreur, utiliser un titre par défaut et un contenu d'exemple
+                    createStoryElement(
+                        story, 
+                        `Histoire ${i+1}`, 
+                        `Histoire ${i+1}\n\nCeci est un exemple de contenu pour l'histoire ${i+1}. Veuillez vérifier que les fichiers texte sont bien présents dans le dossier "stories".`
+                    );
                 }
+            }
+            
+            // Afficher un message si des erreurs se sont produites
+            if (errorOccurred) {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'error-message';
+                errorMessage.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Certains fichiers d'histoires n'ont pas pu être chargés. 
+                    Veuillez vérifier que les fichiers existent dans le dossier "stories".
+                `;
+                storiesContainer.appendChild(errorMessage);
             }
         }
 
