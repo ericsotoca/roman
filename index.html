@@ -4,30 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lecteur d'Histoires</title>
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        #stories {
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+        .story {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            cursor: pointer;
+            background-color: #fff;
+        }
+        .story:hover {
+            background-color: #e0e0e0;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Choisissez une histoire à écouter</h1>
-
-        <div id="story-list">
-            <!-- La liste des histoires sera générée par JavaScript -->
-        </div>
-
-        <div id="story-controls">
-            <button id="play-button" disabled>Lire</button>
-            <button id="pause-button" disabled>Pause</button>
-            <button id="stop-button" disabled>Arrêter</button>
-            <!-- Optionnel: Ajouter des contrôles pour la voix, vitesse, etc. -->
-            <select id="voice-select" disabled><option>Chargement des voix...</option></select>
-        </div>
-
-        <div id="story-content">
-            <p>Sélectionnez une histoire pour afficher son texte ici.</p>
-        </div>
-
+    <h1>Lecteur d'Histoires</h1>
+    <div id="stories"></div>
+    <div id="controls">
+        <button id="stopButton" disabled>Stop</button>
     </div>
+    <script>
+        const storiesContainer = document.getElementById('stories');
+        const stopButton = document.getElementById('stopButton');
+        let speechSynthesisUtterance = null;
 
-    <script src="js/script.js"></script>
+        // Fonction pour charger les histoires
+        async function loadStories() {
+            const stories = ['histoire1.txt', 'histoire2.txt', 'histoire3.txt'];
+            for (const story of stories) {
+                const response = await fetch(`stories/${story}`);
+                const text = await response.text();
+                const title = text.split('\n')[0];
+                const storyElement = document.createElement('div');
+                storyElement.className = 'story';
+                storyElement.textContent = title;
+                storyElement.addEventListener('click', () => readStory(text));
+                storiesContainer.appendChild(storyElement);
+            }
+        }
+
+        // Fonction pour lire une histoire à haute voix
+        function readStory(text) {
+            if (speechSynthesisUtterance) {
+                speechSynthesis.cancel();
+            }
+            speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
+            speechSynthesisUtterance.lang = 'fr-FR';
+            speechSynthesis.speak(speechSynthesisUtterance);
+            stopButton.disabled = false;
+
+            speechSynthesisUtterance.onend = () => {
+                stopButton.disabled = true;
+            };
+        }
+
+        // Fonction pour arrêter la lecture
+        stopButton.addEventListener('click', () => {
+            if (speechSynthesisUtterance) {
+                speechSynthesis.cancel();
+                stopButton.disabled = true;
+            }
+        });
+
+        // Charger les histoires au démarrage
+        loadStories();
+    </script>
 </body>
 </html>
