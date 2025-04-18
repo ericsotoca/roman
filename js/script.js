@@ -207,13 +207,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Mettre en pause la lecture (Identique)
-    function pauseStory() {
-        // ... (Identique) ...
-        if (speechSynthesis.speaking) {
-            speechSynthesis.pause();
-            updateControlsOnPause();
-        }
+    function pauseStory()
+    {
+    console.log("Pause button clicked!"); // <<< AJOUTER CECI
+    if (speechSynthesis.speaking) {
+        console.log("Synthèse en cours, mise en pause..."); // <<< AJOUTER CECI (optionnel)
+        speechSynthesis.pause();
+        updateControlsOnPause();
+    } else {
+        // Optionnel: voir pourquoi on pense que ce n'est pas en train de parler
+        console.log("Pause clicked, but speechSynthesis.speaking is false.");
     }
 
     // Arrêter la lecture (Identique)
