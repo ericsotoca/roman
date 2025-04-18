@@ -52,6 +52,7 @@
         const storiesContainer = document.getElementById('stories');
         const stopButton = document.getElementById('stopButton');
         let speechSynthesisUtterance = null;
+        let isSpeaking = false;
 
         // Fonction pour charger les histoires
         async function loadStories() {
@@ -62,27 +63,21 @@
             ];
 
             for (const story of stories) {
-                try {
-                    const response = await fetch(`stories/${story}`);
-                    if (response.ok) {
-                        const text = await response.text();
-                        const title = text.split('\n')[0];
-                        const storyElement = document.createElement('div');
-                        storyElement.className = 'story';
-                        storyElement.textContent = title;
-                        storyElement.addEventListener('click', () => readStory(text));
-                        storiesContainer.appendChild(storyElement);
-                    }
-                } catch (error) {
-                    console.error(`Erreur lors du chargement de ${story}:`, error);
-                }
+                const response = await fetch(`stories/${story}`);
+                const text = await response.text();
+                const title = text.split('\n')[0];
+                const storyElement = document.createElement('div');
+                storyElement.className = 'story';
+                storyElement.textContent = title;
+                storyElement.addEventListener('click', () => readStory(text));
+                storiesContainer.appendChild(storyElement);
             }
         }
 
         // Fonction pour lire une histoire à haute voix
         function readStory(text) {
-            if (speechSynthesisUtterance) {
-                speechSynthesis.cancel();
+            if (isSpeaking) {
+                stopSpeaking();
             }
             speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
             speechSynthesisUtterance.lang = 'fr-FR';
@@ -95,20 +90,26 @@
             }
 
             speechSynthesis.speak(speechSynthesisUtterance);
+            isSpeaking = true;
             stopButton.disabled = false;
 
             speechSynthesisUtterance.onend = () => {
+                isSpeaking = false;
                 stopButton.disabled = true;
             };
         }
 
         // Fonction pour arrêter la lecture
-        stopButton.addEventListener('click', () => {
-            if (speechSynthesisUtterance) {
+        function stopSpeaking() {
+            if (speechSynthesis.speaking) {
                 speechSynthesis.cancel();
+                isSpeaking = false;
                 stopButton.disabled = true;
             }
-        });
+        }
+
+        // Fonction pour arrêter la lecture
+        stopButton.addEventListener('click', stopSpeaking);
 
         // Charger les histoires au démarrage
         loadStories();
