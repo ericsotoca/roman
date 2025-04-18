@@ -1,1 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecteur d'Histoires</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Choisissez une histoire à écouter</h1>
 
+        <div id="story-list">
+            <!-- La liste des histoires sera générée par JavaScript -->
+        </div>
+
+        <div id="story-controls">
+            <button id="play-button" disabled>Lire</button>
+            <button id="pause-button" disabled>Pause</button>
+            <button id="stop-button" disabled>Arrêter</button>
+            <!-- Optionnel: Ajouter des contrôles pour la voix, vitesse, etc. -->
+            <select id="voice-select" disabled><option>Chargement des voix...</option></select>
+        </div>
+
+        <div id="story-content">
+            <p>Sélectionnez une histoire pour afficher son texte ici.</p>
+        </div>
+
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
