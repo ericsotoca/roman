@@ -1,6 +1,4 @@
- Science-Fiction : "Le Tournoi Intergalactique"
-
-
+Science-Fiction : "Le Tournoi Intergalactique"
 
 Chapitre 1 : L'Appel des Étoiles
 
