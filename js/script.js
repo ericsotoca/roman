@@ -9,9 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
         "stories/histoire5.txt",
         "stories/histoire6.txt",
         "stories/histoire7.txt",
-        "stories/histoire8.txt",
-        "stories/histoire9.txt",
-        "stories/histoire10.txt",
         // Ajoutez les chemins vers vos 10 fichiers ici
     ];
 
