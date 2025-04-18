@@ -55,17 +55,27 @@
 
         // Fonction pour charger les histoires
         async function loadStories() {
-            const stories = ['histoire1.txt', 'histoire2.txt', 'histoire3.txt', 'histoire4.txt', 'histoire5.txt', 'histoire6.txt', 'histoire7.txt', 'histoire8.txt', 'histoire9.txt'];
+            const stories = [
+                'histoire1.txt', 'histoire2.txt', 'histoire3.txt',
+                'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
+                'histoire7.txt', 'histoire8.txt', 'histoire9.txt'
+            ];
 
             for (const story of stories) {
-                const response = await fetch(`stories/${story}`);
-                const text = await response.text();
-                const title = text.split('\n')[0];
-                const storyElement = document.createElement('div');
-                storyElement.className = 'story';
-                storyElement.textContent = title;
-                storyElement.addEventListener('click', () => readStory(text));
-                storiesContainer.appendChild(storyElement);
+                try {
+                    const response = await fetch(`stories/${story}`);
+                    if (response.ok) {
+                        const text = await response.text();
+                        const title = text.split('\n')[0];
+                        const storyElement = document.createElement('div');
+                        storyElement.className = 'story';
+                        storyElement.textContent = title;
+                        storyElement.addEventListener('click', () => readStory(text));
+                        storiesContainer.appendChild(storyElement);
+                    }
+                } catch (error) {
+                    console.error(`Erreur lors du chargement de ${story}:`, error);
+                }
             }
         }
 
@@ -76,6 +86,14 @@
             }
             speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
             speechSynthesisUtterance.lang = 'fr-FR';
+
+            // Vérifier les voix disponibles et sélectionner une voix française
+            const voices = speechSynthesis.getVoices();
+            const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+            if (frenchVoice) {
+                speechSynthesisUtterance.voice = frenchVoice;
+            }
+
             speechSynthesis.speak(speechSynthesisUtterance);
             stopButton.disabled = false;
 
