@@ -3,345 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lecteur d'Histoires Interactif</title>
+    <title>Lecteur d'Histoires</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        :root {
-            --background-color: #e0f2f7; /* Bleu très clair */
-            --card-background: #ffffff;
-            --card-border: #b0bec5;
-            --card-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            --button-bg: #0277bd; /* Bleu */
-            --button-hover-bg: #01579b;
-            --button-text: #ffffff;
-            --stop-button-bg: #d32f2f; /* Rouge */
-            --stop-button-hover-bg: #b71c1c;
-            --active-card-border: #0277bd; /* Bleu pour indiquer l'activité */
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: var(--background-color);
-            color: #333;
-        }
-
-        h1 {
-            text-align: center;
-            color: #01579b; /* Bleu foncé */
-            margin-bottom: 30px;
-        }
-
-        #stories-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto; /* Center the container */
-        }
-
-        .story-card {
-            background-color: var(--card-background);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: var(--card-shadow);
+            padding: 0;
             display: flex;
             flex-direction: column;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            align-items: center;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2, #80deea);
+            min-height: 100vh;
+            color: #333;
         }
-
-        .story-card.active {
-            border-color: var(--active-card-border);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
-
-        .story-title {
-            font-size: 1.1em;
-            font-weight: bold;
+        
+        h1 {
+            text-align: center;
+            color: #0277bd;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        #stories {
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .story {
+            padding: 15px;
+            border-radius: 10px;
             margin-bottom: 15px;
-            flex-grow: 1; /* Pousse les boutons en bas si titres courts */
-             color: #01579b;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
+        
+        .story:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .story-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            flex-grow: 1;
+        }
+        
         .story-controls {
             display: flex;
-            gap: 10px;
-            margin-top: auto; /* Aligne les boutons en bas */
+            gap: 8px;
         }
-
-        .story-controls button {
+        
+        .btn {
             padding: 8px 15px;
-            font-size: 0.9em;
-            border: none;
-            border-radius: 5px;
-            color: var(--button-text);
+            border-radius: 50px;
+            font-size: 14px;
             cursor: pointer;
-            transition: background-color 0.2s ease;
-            flex-grow: 1; /* Fait que les boutons prennent la largeur dispo */
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: background-color 0.2s;
+            color: white;
         }
-
-        .story-controls .play-pause-button {
-            background-color: var(--button-bg);
+        
+        .btn-play {
+            background-color: #4caf50;
         }
-        .story-controls .play-pause-button:hover {
-            background-color: var(--button-hover-bg);
+        
+        .btn-play:hover {
+            background-color: #3e8e41;
         }
-        .story-controls .play-pause-button:disabled {
-             background-color: #90a4ae; /* Gris quand désactivé */
-             cursor: not-allowed;
+        
+        .btn-pause {
+            background-color: #ff9800;
         }
-
-
-        .story-controls .stop-button {
-            background-color: var(--stop-button-bg);
-            flex-grow: 0; /* Ne grandit pas autant que le play/pause */
-            min-width: 60px; /* Largeur minimale pour "Stop" */
+        
+        .btn-pause:hover {
+            background-color: #e68a00;
         }
-        .story-controls .stop-button:hover {
-            background-color: var(--stop-button-hover-bg);
+        
+        .btn-stop {
+            background-color: #f44336;
         }
-         .story-controls .stop-button:disabled {
-             background-color: #cfcfcf;
-             cursor: not-allowed;
+        
+        .btn-stop:hover {
+            background-color: #d32f2f;
         }
-
-        /* Style pour l'état "Pause" */
-        .story-controls .play-pause-button.paused {
-            background-color: #ffa000; /* Orange pour indiquer la pause */
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
-        .story-controls .play-pause-button.paused:hover {
-            background-color: #ef6c00;
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #cccccc;
+            margin-right: 10px;
         }
-
+        
+        .status-active {
+            background-color: #4caf50;
+            box-shadow: 0 0 5px #4caf50;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+        }
     </style>
 </head>
 <body>
-    <h1>Lecteur d'Histoires Interactif</h1>
-    <div id="stories-container">
-        <!-- Les histoires seront chargées ici par JavaScript -->
+    <div class="container">
+        <h1><i class="fas fa-book-open"></i> Lecteur d'Histoires</h1>
+        <div id="stories"></div>
+    </div>
+    <div class="footer">
+        Lecteur d'histoires - Profitez d'une lecture à haute voix
     </div>
 
     <script>
-        const storiesContainer = document.getElementById('stories-container');
-        let currentUtterance = null;
-        let activeStoryCard = null; // Garde une référence à la carte active
-        let voices = []; // Pour stocker les voix disponibles
+        const storiesContainer = document.getElementById('stories');
+        let currentlyPlaying = null;
 
-        // Pré-charger les voix (important car elles peuvent ne pas être prêtes immédiatement)
-        function populateVoiceList() {
-            voices = speechSynthesis.getVoices().filter(voice => voice.lang === 'fr-FR' || voice.lang.startsWith('fr-'));
-            // Si vous voulez une voix spécifique (par exemple, la première française trouvée)
-             // console.log("Voix françaises disponibles:", voices);
-        }
-
-        populateVoiceList();
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = populateVoiceList;
-        }
-
-        // Fonction pour charger et afficher les histoires
+        // Fonction pour charger les histoires
         async function loadStories() {
-            const storyFiles = [
+            const stories = [
                 'histoire1.txt', 'histoire2.txt', 'histoire3.txt',
                 'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
                 'histoire7.txt', 'histoire8.txt', 'histoire9.txt'
             ];
 
-            for (const filename of storyFiles) {
+            for (let i = 0; i < stories.length; i++) {
+                const story = stories[i];
                 try {
-                    const response = await fetch(`stories/${filename}`);
-                    if (!response.ok) {
-                        throw new Error(`Erreur HTTP: ${response.status}`);
-                    }
+                    const response = await fetch(`stories/${story}`);
+                    if (!response.ok) throw new Error(`Erreur lors du chargement de ${story}`);
+                    
                     const text = await response.text();
-                    const title = text.split('\n')[0] || filename; // Utilise nom fichier si titre vide
-
-                    createStoryCard(title, text);
-
+                    const title = text.split('\n')[0] || `Histoire ${i+1}`;
+                    
+                    createStoryElement(story, title, text);
                 } catch (error) {
-                    console.error(`Impossible de charger l'histoire ${filename}:`, error);
-                    // Optionnel: Afficher une carte d'erreur à l'utilisateur
-                     createErrorCard(filename);
+                    console.error(error);
+                    // En cas d'erreur, créer quand même un élément avec un titre par défaut
+                    createStoryElement(story, `Histoire ${i+1}`, `Contenu de l'histoire ${i+1}`);
                 }
             }
         }
 
-         // Fonction pour créer une carte d'histoire
-        function createStoryCard(title, text) {
-            const card = document.createElement('div');
-            card.className = 'story-card';
-
+        // Fonction pour créer l'élément d'une histoire
+        function createStoryElement(id, title, text) {
+            const storyElement = document.createElement('div');
+            storyElement.className = 'story';
+            storyElement.dataset.id = id;
+            
+            const statusIndicator = document.createElement('div');
+            statusIndicator.className = 'status-indicator';
+            
             const titleElement = document.createElement('div');
             titleElement.className = 'story-title';
             titleElement.textContent = title;
-
-            const controls = document.createElement('div');
-            controls.className = 'story-controls';
-
-            const playPauseButton = document.createElement('button');
-            playPauseButton.textContent = 'Lire';
-            playPauseButton.className = 'play-pause-button';
-            playPauseButton.onclick = () => handlePlayPause(card, text, playPauseButton, stopButton);
-
+            
+            const controlsElement = document.createElement('div');
+            controlsElement.className = 'story-controls';
+            
+            // Bouton Play
+            const playButton = document.createElement('button');
+            playButton.className = 'btn btn-play';
+            playButton.innerHTML = '<i class="fas fa-play"></i> Lire';
+            playButton.addEventListener('click', () => readStory(id, text, statusIndicator, playButton, pauseButton, stopButton));
+            
+            // Bouton Pause
+            const pauseButton = document.createElement('button');
+            pauseButton.className = 'btn btn-pause';
+            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            pauseButton.disabled = true;
+            pauseButton.addEventListener('click', () => pauseStory(id));
+            
+            // Bouton Stop
             const stopButton = document.createElement('button');
-            stopButton.textContent = 'Stop';
-            stopButton.className = 'stop-button';
-            stopButton.disabled = true; // Désactivé au début
-            stopButton.onclick = () => handleStop(card, playPauseButton, stopButton);
-
-            controls.appendChild(playPauseButton);
-            controls.appendChild(stopButton);
-
-            card.appendChild(titleElement);
-            card.appendChild(controls);
-
-            storiesContainer.appendChild(card);
+            stopButton.className = 'btn btn-stop';
+            stopButton.innerHTML = '<i class="fas fa-stop"></i> Stop';
+            stopButton.disabled = true;
+            stopButton.addEventListener('click', () => stopStory(id));
+            
+            controlsElement.appendChild(playButton);
+            controlsElement.appendChild(pauseButton);
+            controlsElement.appendChild(stopButton);
+            
+            storyElement.appendChild(statusIndicator);
+            storyElement.appendChild(titleElement);
+            storyElement.appendChild(controlsElement);
+            
+            storiesContainer.appendChild(storyElement);
         }
 
-         // Fonction pour créer une carte d'erreur
-        function createErrorCard(filename) {
-             const card = document.createElement('div');
-            card.className = 'story-card error-card'; // Vous pouvez ajouter un style CSS pour .error-card
-            card.style.borderColor = 'red'; // Style simple pour l'erreur
-            card.innerHTML = `<div class="story-title">Erreur</div><div>Impossible de charger ${filename}</div>`;
-            storiesContainer.appendChild(card);
-        }
+        // Gérer l'état des synthèses vocales
+        const speechSynthesisMap = {};
 
-
-        // Gère le clic sur le bouton Lire/Pause/Reprendre
-        function handlePlayPause(card, text, playPauseButton, stopButton) {
-            // Si on clique sur "Lire" pour une nouvelle histoire alors qu'une autre est en cours/pause
-            if (activeStoryCard && activeStoryCard !== card && currentUtterance) {
-                 handleStop(activeStoryCard,
-                           activeStoryCard.querySelector('.play-pause-button'),
-                           activeStoryCard.querySelector('.stop-button')); // Arrête l'ancienne histoire d'abord
+        // Fonction pour lire une histoire à haute voix
+        function readStory(id, text, statusIndicator, playButton, pauseButton, stopButton) {
+            // Arrêter l'histoire en cours s'il y en a une
+            if (currentlyPlaying) {
+                const currentId = currentlyPlaying;
+                stopStory(currentId);
             }
-
-            if (!currentUtterance) {
-                // --- Démarrer la lecture ---
-                currentUtterance = new SpeechSynthesisUtterance(text);
-                currentUtterance.lang = 'fr-FR';
-
-                // Sélectionner une voix française si disponible
-                 if (voices.length > 0) {
-                    // Essayez de trouver une voix spécifique ou prenez la première
-                     currentUtterance.voice = voices[0]; // Ou une logique plus fine pour choisir
-                     // console.log("Utilisation de la voix:", currentUtterance.voice.name);
-                 } else {
-                     console.warn("Aucune voix française trouvée. Utilisation de la voix par défaut.");
-                 }
-
-
-                currentUtterance.onstart = () => {
-                    // console.log("Lecture démarrée");
-                    updateUI(card, 'playing', playPauseButton, stopButton);
-                };
-
-                currentUtterance.onpause = () => {
-                     // console.log("Lecture en pause");
-                    updateUI(card, 'paused', playPauseButton, stopButton);
-                };
-
-                currentUtterance.onresume = () => {
-                     // console.log("Lecture reprise");
-                    updateUI(card, 'playing', playPauseButton, stopButton);
-                };
-
-                currentUtterance.onend = () => {
-                     // console.log("Lecture terminée");
-                    handleStop(card, playPauseButton, stopButton); // Nettoie comme un arrêt manuel
-                };
-
-                currentUtterance.onerror = (event) => {
-                    console.error("Erreur de Synthèse Vocale:", event.error);
-                    handleStop(card, playPauseButton, stopButton); // Nettoie en cas d'erreur
-                };
-
-                activeStoryCard = card; // Marque cette carte comme active
-                speechSynthesis.speak(currentUtterance);
-
-            } else if (speechSynthesis.paused) {
-                // --- Reprendre la lecture ---
-                speechSynthesis.resume();
-            } else {
-                // --- Mettre en pause la lecture ---
-                speechSynthesis.pause();
-            }
-        }
-
-        // Gère le clic sur le bouton Stop
-        function handleStop(card, playPauseButton, stopButton) {
-            if (speechSynthesis.speaking || speechSynthesis.paused) {
-                speechSynthesis.cancel(); // Arrête immédiatement
-            }
-            currentUtterance = null;
-            activeStoryCard = null;
-             // Réinitialise l'UI de la carte qui vient d'être arrêtée
-            updateUI(card, 'stopped', playPauseButton, stopButton);
-
-            // S'assure que toutes les autres cartes sont aussi dans l'état 'stopped' (au cas où)
-             resetAllOtherCardsUI(card);
-        }
-
-        // Met à jour l'interface utilisateur d'une carte spécifique
-        function updateUI(card, state, playPauseButton, stopButton) {
-             // Gère la classe 'active' sur la carte
-             document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
-             if (state === 'playing' || state === 'paused') {
-                 card.classList.add('active');
-             } else {
-                 card.classList.remove('active');
-             }
-
-            // Gère les boutons
-             playPauseButton.classList.remove('paused'); // Enlève le style pause par défaut
-
-            switch (state) {
-                case 'playing':
-                    playPauseButton.textContent = 'Pause';
-                    playPauseButton.disabled = false;
-                    stopButton.disabled = false;
-                     resetAllOtherCardsUI(card); // Réinitialise les autres cartes
-                    break;
-                case 'paused':
-                    playPauseButton.textContent = 'Reprendre';
-                    playPauseButton.classList.add('paused'); // Ajoute le style pause
-                    playPauseButton.disabled = false;
-                    stopButton.disabled = false;
-                    break;
-                case 'stopped':
-                default:
-                    playPauseButton.textContent = 'Lire';
-                    playPauseButton.disabled = false;
-                    stopButton.disabled = true;
-                    card.classList.remove('active'); // Assure qu'elle n'est plus active visuellement
-                    break;
-            }
-        }
-
-         // Réinitialise l'UI de toutes les cartes SAUF celle spécifiée
-        function resetAllOtherCardsUI(currentCard) {
-            const allCards = document.querySelectorAll('.story-card');
-            allCards.forEach(card => {
-                if (card !== currentCard) {
-                    const ppButton = card.querySelector('.play-pause-button');
-                    const sButton = card.querySelector('.stop-button');
-                    if (ppButton && sButton) {
-                         ppButton.textContent = 'Lire';
-                         ppButton.disabled = false;
-                         ppButton.classList.remove('paused');
-                         sButton.disabled = true;
-                         card.classList.remove('active');
-                    }
+            
+            // Créer une nouvelle instance de SpeechSynthesisUtterance
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            
+            // Charger les voix disponibles
+            window.speechSynthesis.onvoiceschanged = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+                if (frenchVoice) {
+                    utterance.voice = frenchVoice;
                 }
-            });
+            };
+            
+            // Initialiser les voix
+            const voices = window.speechSynthesis.getVoices();
+            const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+            if (frenchVoice) {
+                utterance.voice = frenchVoice;
+            }
+            
+            // Stocker l'instance de la synthèse vocale
+            speechSynthesisMap[id] = {
+                utterance: utterance,
+                statusIndicator: statusIndicator,
+                playButton: playButton,
+                pauseButton: pauseButton,
+                stopButton: stopButton,
+                isPaused: false
+            };
+            
+            // Démarrer la lecture
+            window.speechSynthesis.speak(utterance);
+            
+            // Mettre à jour l'interface
+            statusIndicator.classList.add('status-active');
+            playButton.disabled = true;
+            pauseButton.disabled = false;
+            stopButton.disabled = false;
+            
+            // Gérer la fin de la lecture
+            utterance.onend = () => {
+                resetStoryState(id);
+            };
+            
+            // Définir l'histoire en cours de lecture
+            currentlyPlaying = id;
         }
 
+        // Fonction pour mettre en pause une histoire
+        function pauseStory(id) {
+            const storyData = speechSynthesisMap[id];
+            
+            if (storyData && !storyData.isPaused) {
+                window.speechSynthesis.pause();
+                storyData.isPaused = true;
+                storyData.pauseButton.innerHTML = '<i class="fas fa-play"></i> Reprendre';
+                storyData.statusIndicator.style.animationPlayState = 'paused';
+            } else if (storyData && storyData.isPaused) {
+                window.speechSynthesis.resume();
+                storyData.isPaused = false;
+                storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                storyData.statusIndicator.style.animationPlayState = 'running';
+            }
+        }
+
+        // Fonction pour arrêter la lecture
+        function stopStory(id) {
+            window.speechSynthesis.cancel();
+            resetStoryState(id);
+            currentlyPlaying = null;
+        }
+
+        // Fonction pour réinitialiser l'état de l'interface d'une histoire
+        function resetStoryState(id) {
+            const storyData = speechSynthesisMap[id];
+            
+            if (storyData) {
+                storyData.statusIndicator.classList.remove('status-active');
+                storyData.statusIndicator.style.animationPlayState = '';
+                storyData.playButton.disabled = false;
+                storyData.pauseButton.disabled = true;
+                storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                storyData.stopButton.disabled = true;
+                
+                // Supprimer les données de cette histoire
+                delete speechSynthesisMap[id];
+            }
+        }
 
         // Charger les histoires au démarrage
-        loadStories();
-
+        document.addEventListener('DOMContentLoaded', loadStories);
     </script>
 </body>
 </html>
