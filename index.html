@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +27,7 @@
             border-radius: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
-        
+
         h1 {
             text-align: center;
             color: #0277bd;
@@ -36,12 +35,12 @@
             font-size: 2.2rem;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
-        
+
         #stories {
             margin-top: 20px;
             width: 100%;
         }
-        
+
         .story {
             padding: 15px;
             border-radius: 10px;
@@ -52,45 +51,61 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .story:hover {
             transform: translateY(-3px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        
+
         .story-header {
             display: flex;
             align-items: center;
             margin-bottom: 12px;
+            gap: 10px; /* Ajout d'espace entre les éléments de l'en-tête */
         }
-        
+
         .status-indicator {
             width: 12px;
             height: 12px;
             border-radius: 50%;
             background-color: #cccccc;
-            margin-right: 10px;
+            margin-right: 0; /* L'espacement est géré par 'gap' sur .story-header */
             flex-shrink: 0;
         }
-        
+
         .status-active {
             background-color: #4caf50;
             box-shadow: 0 0 5px #4caf50;
             animation: pulse 1.5s infinite;
         }
-        
+
         .story-title {
             font-weight: bold;
             font-size: 1.1rem;
-            flex-grow: 1;
+            flex-grow: 1; /* Le titre prend l'espace restant */
+            margin-right: 10px; /* Espace avant la durée */
         }
-        
+
+        /* --- NOUVEAU STYLE POUR LA DUREE --- */
+        .story-duration {
+            font-size: 0.85rem; /* Plus petit que le titre */
+            color: #555;      /* Couleur discrète */
+            white-space: nowrap; /* Empêche le retour à la ligne */
+            flex-shrink: 0; /* Empêche la durée de rétrécir */
+        }
+
+        .story-duration i {
+            margin-right: 4px; /* Espace entre l'icône et le texte */
+            color: #777;
+        }
+        /* --- FIN NOUVEAU STYLE POUR LA DUREE --- */
+
         .story-controls {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
         }
-        
+
         .btn {
             padding: 8px 15px;
             border-radius: 50px;
@@ -106,43 +121,43 @@
             flex: 1;
             min-width: 90px;
         }
-        
+
         .btn-play {
             background-color: #4caf50;
         }
-        
+
         .btn-play:hover {
             background-color: #3e8e41;
         }
-        
+
         .btn-pause {
             background-color: #ff9800;
         }
-        
+
         .btn-pause:hover {
             background-color: #e68a00;
         }
-        
+
         .btn-stop {
             background-color: #f44336;
         }
-        
+
         .btn-stop:hover {
             background-color: #d32f2f;
         }
-        
+
         .btn:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
             opacity: 0.7;
         }
-        
+
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
-        
+
         .footer {
             margin-top: 30px;
             text-align: center;
@@ -150,23 +165,43 @@
             color: #555;
             padding: 0 20px;
         }
-        
+
         /* Styles spécifiques pour mobile */
         @media (max-width: 600px) {
+             .story-header {
+                flex-wrap: wrap; /* Permet le retour à la ligne si pas assez de place */
+                row-gap: 5px; /* Espace vertical si retour à la ligne */
+            }
+            .story-title {
+                width: calc(100% - 22px - 10px); /* Prend presque toute la largeur moins l'indicateur et le gap */
+                margin-right: 0;
+                order: 1; /* Place le titre après l'indicateur */
+            }
+             .story-duration {
+                 order: 2; /* Place la durée après le titre */
+                 width: 100%;   /* Prend toute la largeur */
+                 text-align: right; /* Aligne à droite */
+                 padding-left: 22px; /* S'aligne avec le début du titre (largeur indicateur + gap) */
+                 margin-top: -5px; /* Réduit l'espace vertical */
+            }
+            .status-indicator {
+                order: 0; /* Place l'indicateur en premier */
+            }
+
             .story-controls {
                 justify-content: center;
             }
-            
+
             .btn {
                 padding: 10px 15px;
                 font-size: 16px;
             }
-            
+
             h1 {
                 font-size: 1.8rem;
             }
         }
-        
+
         .loader {
             display: inline-block;
             width: 20px;
@@ -177,16 +212,16 @@
             animation: spin 1s ease-in-out infinite;
             margin-right: 10px;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
+
         .loading-text {
             text-align: center;
             margin: 20px 0;
         }
-        
+
         .error-message {
             color: #f44336;
             text-align: center;
@@ -209,7 +244,7 @@
     <div class="container">
         <h1><i class="fas fa-book-open"></i> Lecteur d'Histoires</h1>
         <div id="compatibility-warning" class="compatibility-message">
-            <i class="fas fa-exclamation-triangle"></i> 
+            <i class="fas fa-exclamation-triangle"></i>
             Sur certains appareils mobiles, la synthèse vocale peut nécessiter des permissions ou ne pas fonctionner correctement.
         </div>
         <div id="stories">
@@ -228,6 +263,37 @@
     let currentlyPlaying = null;
     const isMobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
 
+    // --- NOUVEAU : Constante pour la vitesse de lecture estimée ---
+    const AVERAGE_WPM = 140; // Mots par minute estimés
+    // --- FIN NOUVEAU ---
+
+    // --- NOUVELLE FONCTION : Estimer et formater la durée ---
+    function estimateDuration(text) {
+        if (!text) return '0:00';
+
+        // Compter les mots (méthode simple)
+        const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+        const wordCount = words.length;
+
+        if (wordCount === 0) return '0:00';
+
+        // Calculer la durée en minutes
+        const durationMinutes = wordCount / AVERAGE_WPM;
+
+        // Convertir en secondes totales
+        const totalSeconds = Math.round(durationMinutes * 60);
+
+        // Formater en MM:SS
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        // Ajoute un zéro devant si nécessaire (ex: 3:05 au lieu de 3:5)
+        const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+
+        return `${minutes}:${formattedSeconds}`;
+    }
+    // --- FIN NOUVELLE FONCTION ---
+
     // Vérification de la compatibilité
     function checkCompatibility() {
         if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
@@ -235,11 +301,11 @@
             compatibilityWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Votre navigateur ne prend pas en charge la synthèse vocale.';
             return false;
         }
-        
+
         if (isMobile) {
             compatibilityWarning.style.display = 'block';
         }
-        
+
         return true;
     }
 
@@ -250,113 +316,130 @@
             'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
             'histoire7.txt', 'histoire8.txt', 'histoire9.txt'
         ];
-        
+
         // Vérifier la compatibilité
         checkCompatibility();
-        
+
         // Effacer le message de chargement
         storiesContainer.innerHTML = '';
-        
+
         let loadedStories = 0;
         let errorOccurred = false;
 
         for (let i = 0; i < stories.length; i++) {
-            const story = stories[i];
+            const storyFileName = stories[i]; // Renommé pour clarté
             try {
                 // Essayer de charger le fichier texte
-                // Ajout d'un paramètre cache-buster pour éviter les problèmes de cache
-                const response = await fetch(`stories/${story}?v=${new Date().getTime()}`);
-                
+                const response = await fetch(`stories/${storyFileName}?v=${new Date().getTime()}`);
+
                 if (!response.ok) {
-                    throw new Error(`Erreur lors du chargement de ${story}: ${response.status}`);
+                    throw new Error(`Erreur lors du chargement de ${storyFileName}: ${response.status}`);
                 }
-                
+
                 const text = await response.text();
-                
+
                 // Extraire le titre de la première ligne
                 const title = text.split('\n')[0].trim() || `Histoire ${i+1}`;
-                
-                createStoryElement(story, title, text);
+
+                // MODIFIE : Passe le nom du fichier (id), le titre ET le texte complet
+                createStoryElement(storyFileName, title, text);
                 loadedStories++;
             } catch (error) {
                 console.error(error);
                 errorOccurred = true;
-                
+
                 // En cas d'erreur, utiliser un titre par défaut et un contenu d'exemple
+                // Passe quand même le texte d'erreur pour pouvoir estimer sa (courte) durée
+                const errorText = `Histoire ${i+1}\n\nCeci est un exemple de contenu pour l'histoire ${i+1}. Veuillez vérifier que le fichier texte est bien présent dans le dossier "stories".`;
                 createStoryElement(
-                    story, 
-                    `Histoire ${i+1}`, 
-                    `Histoire ${i+1}\n\nCeci est un exemple de contenu pour l'histoire ${i+1}. Veuillez vérifier que les fichiers texte sont bien présents dans le dossier "stories".`
+                    storyFileName,
+                    `Histoire ${i+1} (Erreur)`,
+                    errorText
                 );
             }
         }
-        
+
         // Afficher un message si des erreurs se sont produites
         if (errorOccurred) {
             const errorMessage = document.createElement('div');
             errorMessage.className = 'error-message';
             errorMessage.innerHTML = `
-                <i class="fas fa-exclamation-triangle"></i> 
-                Certains fichiers d'histoires n'ont pas pu être chargés. 
+                <i class="fas fa-exclamation-triangle"></i>
+                Certains fichiers d'histoires n'ont pas pu être chargés.
                 Veuillez vérifier que les fichiers existent dans le dossier "stories".
             `;
-            storiesContainer.appendChild(errorMessage);
+            // Insérer avant la première histoire pour ne pas être tout en bas
+            storiesContainer.insertBefore(errorMessage, storiesContainer.firstChild);
         }
     }
 
-    // Fonction pour créer l'élément d'une histoire
-    function createStoryElement(id, title, text) {
+    // --- MODIFICATION : Fonction pour créer l'élément d'une histoire (ajout de la durée) ---
+    function createStoryElement(id, title, text) { // 'text' est maintenant reçu ici
         const storyElement = document.createElement('div');
         storyElement.className = 'story';
-        storyElement.dataset.id = id;
-        
-        // Créer l'en-tête de l'histoire avec indicateur et titre
+        storyElement.dataset.id = id; // Utilise le nom de fichier comme id
+
+        // Créer l'en-tête de l'histoire
         const storyHeader = document.createElement('div');
         storyHeader.className = 'story-header';
-        
+
         const statusIndicator = document.createElement('div');
         statusIndicator.className = 'status-indicator';
-        
+
         const titleElement = document.createElement('div');
         titleElement.className = 'story-title';
         titleElement.textContent = title;
-        
+
+        // --- NOUVEAU : Calculer et créer l'élément de durée ---
+        const estimatedDuration = estimateDuration(text);
+        const durationElement = document.createElement('span');
+        durationElement.className = 'story-duration';
+        // Utilisation d'une icône FontAwesome REGULAR ('far') + texte
+        durationElement.innerHTML = `<i class="far fa-clock"></i> ${estimatedDuration}`;
+        // Info-bulle expliquant l'estimation
+        durationElement.title = `Durée estimée (~${AVERAGE_WPM} mots/minute)`;
+        // --- FIN NOUVEAU ---
+
         storyHeader.appendChild(statusIndicator);
         storyHeader.appendChild(titleElement);
-        
+        storyHeader.appendChild(durationElement); // Ajouter l'élément durée à l'en-tête
+
         // Créer la zone des contrôles
         const controlsElement = document.createElement('div');
         controlsElement.className = 'story-controls';
-        
+
         // Bouton Play
         const playButton = document.createElement('button');
         playButton.className = 'btn btn-play';
         playButton.innerHTML = '<i class="fas fa-play"></i> Lire';
+        // Passe les éléments UI nécessaires à readStory
         playButton.addEventListener('click', () => readStory(id, text, statusIndicator, playButton, pauseButton, stopButton));
-        
+
         // Bouton Pause
         const pauseButton = document.createElement('button');
         pauseButton.className = 'btn btn-pause';
         pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
         pauseButton.disabled = true;
         pauseButton.addEventListener('click', () => pauseStory(id));
-        
+
         // Bouton Stop
         const stopButton = document.createElement('button');
         stopButton.className = 'btn btn-stop';
         stopButton.innerHTML = '<i class="fas fa-stop"></i> Stop';
         stopButton.disabled = true;
         stopButton.addEventListener('click', () => stopStory(id));
-        
+
         controlsElement.appendChild(playButton);
         controlsElement.appendChild(pauseButton);
         controlsElement.appendChild(stopButton);
-        
-        storyElement.appendChild(storyHeader);
+
+        storyElement.appendChild(storyHeader); // L'en-tête contient maintenant la durée
         storyElement.appendChild(controlsElement);
-        
+
         storiesContainer.appendChild(storyElement);
     }
+    // --- FIN MODIFICATION ---
+
 
     // Gérer l'état des synthèses vocales
     const speechSynthesisMap = {};
@@ -366,270 +449,370 @@
         // Arrêter l'histoire en cours s'il y en a une
         if (currentlyPlaying && currentlyPlaying !== id) {
             const currentId = currentlyPlaying;
-            stopStory(currentId);
+            stopStory(currentId); // Appelle la fonction stop pour l'histoire précédente
         }
-        
-        // Si c'est déjà cette histoire qui joue, ne rien faire
-        if (currentlyPlaying === id) return;
-        
-        // Vérification de la prise en charge
+
+        // Vérifier si la lecture est déjà en cours pour cette histoire (évite double clic rapide)
+        // On vérifie aussi si une pause est active sur cette histoire pour permettre la reprise via le bouton Play
+        const existingData = speechSynthesisMap[id];
+        if (existingData && !existingData.isPaused) {
+             console.log("Lecture déjà en cours pour " + id);
+             return; // Ne rien faire si déjà en lecture
+        }
+        if (existingData && existingData.isPaused) {
+            // Si l'histoire est en pause, le bouton Play agit comme un "Reprendre" (alternative au bouton Pause/Reprendre)
+             pauseStory(id); // Appeler pauseStory va gérer la reprise
+             return;
+        }
+
+
+        // Vérification de la prise en charge de l'API SpeechSynthesis
         if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
             alert("Votre navigateur ne prend pas en charge la synthèse vocale.");
             return;
         }
 
-        // Approche différente pour mobile et desktop
-        if (!isMobile) {
-            // Code normal pour PC
-            // Créer une nouvelle instance de SpeechSynthesisUtterance
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'fr-FR';
+        // Tentative d'activation audio initiale (utile sur mobile)
+        // Cela peut être fait une seule fois au début, mais le replacer ici peut aider dans certains cas
+         if (isMobile) {
+             try {
+                 const silence = new SpeechSynthesisUtterance('');
+                 silence.volume = 0;
+                 window.speechSynthesis.speak(silence);
+            } catch(e) {}
+        }
 
-            // Forcer l'initialisation des voix
-            let voices = window.speechSynthesis.getVoices();
-            
-            // Pour Chrome, on doit attendre que les voix soient chargées
-            if (voices.length === 0) {
-                window.speechSynthesis.onvoiceschanged = function() {
-                    voices = window.speechSynthesis.getVoices();
-                    setFrenchVoice(utterance, voices);
-                    startSpeaking(utterance);
-                };
-            } else {
-                setFrenchVoice(utterance, voices);
-                startSpeaking(utterance);
-            }
-            
-            function setFrenchVoice(utterance, voices) {
-                // Essayer d'abord une voix française
-                const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
-                if (frenchVoice) {
-                    utterance.voice = frenchVoice;
-                }
-                
-                // Si pas de voix française, prendre la première disponible
-                if (!utterance.voice && voices.length > 0) {
-                    utterance.voice = voices[0];
-                }
-                
-                utterance.volume = 1; // Max volume
-            }
-            
-            function startSpeaking(utterance) {
-                // Stocker l'instance de la synthèse vocale
-                speechSynthesisMap[id] = {
-                    utterance: utterance,
-                    statusIndicator: statusIndicator,
-                    playButton: playButton,
-                    pauseButton: pauseButton,
-                    stopButton: stopButton,
-                    isPaused: false
-                };
-                
-                // Démarrer la lecture
-                try {
-                    window.speechSynthesis.cancel(); // Arrêter toute synthèse en cours
-                    window.speechSynthesis.speak(utterance);
-                    
-                    // Mettre à jour l'interface
-                    statusIndicator.classList.add('status-active');
-                    playButton.disabled = true;
-                    pauseButton.disabled = false;
-                    stopButton.disabled = false;
-                    
-                    // Gérer la fin de la lecture
-                    utterance.onend = () => {
-                        resetStoryState(id);
-                    };
-                    
-                    // Définir l'histoire en cours de lecture
-                    currentlyPlaying = id;
-                } catch (error) {
-                    console.error("Erreur lors de la lecture:", error);
-                    alert("Impossible de lire l'histoire. Veuillez vérifier que votre appareil prend en charge la synthèse vocale.");
-                    resetStoryState(id);
-                }
-            }
+        // Logique spécifique Mobile vs Desktop
+        if (!isMobile) {
+            readStoryDesktop(id, text, statusIndicator, playButton, pauseButton, stopButton);
         } else {
-            // Code spécifique pour mobile
-            try {
-                // Approche simplifiée pour mobile
-                window.speechSynthesis.cancel(); // Arrêter toute synthèse en cours
-                
-                const mobileUtterance = new SpeechSynthesisUtterance();
-                
-                // Sur mobile, le texte long peut causer des problèmes
-                // Diviser le texte en paragraphes plus courts si nécessaire
-                const paragraphs = text.split('\n\n');
-                let currentParagraph = 0;
-                
-                // Fonction pour parler le paragraphe actuel
-                function speakCurrentParagraph() {
-                    if (currentParagraph < paragraphs.length) {
-                        const currentText = paragraphs[currentParagraph];
-                        mobileUtterance.text = currentText;
-                        mobileUtterance.lang = 'fr-FR';
-                        
-                        // Essayer de définir une voix française si disponible
-                        const voices = window.speechSynthesis.getVoices();
-                        const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
-                        if (frenchVoice) {
-                            mobileUtterance.voice = frenchVoice;
-                        }
-                        
-                        // Parler le paragraphe actuel
-                        window.speechSynthesis.speak(mobileUtterance);
-                        
-                        // Avancer au paragraphe suivant quand celui-ci est terminé
-                        mobileUtterance.onend = function() {
-                            currentParagraph++;
-                            if (currentParagraph < paragraphs.length && currentlyPlaying === id) {
-                                // Continuer si on n'a pas arrêté la lecture
-                                speakCurrentParagraph();
-                            } else {
-                                // Fin de l'histoire
-                                resetStoryState(id);
-                            }
-                        };
-                    }
-                }
-                
-                // Commencer la lecture
-                speakCurrentParagraph();
-                
-                // Mettre à jour l'interface
-                statusIndicator.classList.add('status-active');
-                playButton.disabled = true;
-                pauseButton.disabled = false;
-                stopButton.disabled = false;
-                
-                // Définir l'histoire en cours
-                currentlyPlaying = id;
-                
-                // Stocker les références
-                speechSynthesisMap[id] = {
-                    utterance: mobileUtterance,
-                    statusIndicator: statusIndicator,
-                    playButton: playButton,
-                    pauseButton: pauseButton,
-                    stopButton: stopButton,
-                    isPaused: false,
-                    currentParagraph: currentParagraph,
-                    paragraphs: paragraphs,
-                    speakFunction: speakCurrentParagraph
-                };
-                
-                // Sur iOS, forcer la synthèse à démarrer
-                if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                    setTimeout(() => {
-                        window.speechSynthesis.pause();
-                        window.speechSynthesis.resume();
-                    }, 100);
-                }
-            } catch (error) {
-                console.error("Erreur mobile:", error);
-                alert("Impossible de lire l'histoire sur votre appareil mobile. Veuillez vérifier que votre appareil prend en charge la synthèse vocale.");
-                resetStoryState(id);
-            }
+            readStoryMobile(id, text, statusIndicator, playButton, pauseButton, stopButton);
         }
     }
 
-    // Fonction pour mettre en pause une histoire
+    function readStoryDesktop(id, text, statusIndicator, playButton, pauseButton, stopButton) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'fr-FR';
+
+        let voices = window.speechSynthesis.getVoices();
+
+        const setupAndSpeak = () => {
+            setFrenchVoice(utterance, window.speechSynthesis.getVoices());
+            startSpeaking(id, utterance, statusIndicator, playButton, pauseButton, stopButton);
+        };
+
+        if (voices.length === 0) {
+            window.speechSynthesis.onvoiceschanged = setupAndSpeak;
+        } else {
+            setupAndSpeak();
+        }
+    }
+
+     function readStoryMobile(id, text, statusIndicator, playButton, pauseButton, stopButton) {
+        try {
+            window.speechSynthesis.cancel(); // Arrêter toute synthèse en cours avant de commencer
+
+            const mobileUtterance = new SpeechSynthesisUtterance(); // Créer l'objet utterance
+            mobileUtterance.lang = 'fr-FR';
+
+            // Diviser le texte en paragraphes pour une meilleure gestion sur mobile
+            const paragraphs = text.split('\n').filter(p => p.trim().length > 0); // Sépare par ligne non vide
+            let currentParagraphIndex = 0;
+            let isStoppedManually = false; // Flag pour savoir si l'arrêt est volontaire
+
+            const speakNextParagraph = () => {
+                // Vérifie si on a arrêté manuellement ou si on a dépassé la fin
+                if (isStoppedManually || currentParagraphIndex >= paragraphs.length || currentlyPlaying !== id) {
+                    if (!isStoppedManually) { // Si c'est la fin naturelle
+                       resetStoryState(id);
+                    }
+                    return; // Arrête la récursion
+                }
+
+                const currentText = paragraphs[currentParagraphIndex];
+                mobileUtterance.text = currentText;
+
+                // Essayer de définir une voix française (peut être nécessaire à chaque speak sur certains mobiles)
+                const voices = window.speechSynthesis.getVoices();
+                const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
+                if (frenchVoice) {
+                    mobileUtterance.voice = frenchVoice;
+                }
+
+                // Callback pour passer au paragraphe suivant une fois celui-ci terminé
+                mobileUtterance.onend = () => {
+                    currentParagraphIndex++;
+                    // Petit délai avant de lancer le suivant, peut améliorer la fluidité
+                    setTimeout(speakNextParagraph, 50);
+                };
+
+                mobileUtterance.onerror = (event) => {
+                    console.error("Erreur de synthèse vocale mobile:", event);
+                    // Tenter d'arrêter proprement en cas d'erreur
+                     isStoppedManually = true; // Marquer comme arrêté
+                     resetStoryState(id);
+                };
+
+                 // Lancer la lecture du paragraphe actuel
+                window.speechSynthesis.speak(mobileUtterance);
+            };
+
+            // Mettre à jour l'interface AVANT de commencer à parler
+            statusIndicator.classList.add('status-active');
+            playButton.disabled = true;
+            pauseButton.disabled = false;
+            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause'; // S'assurer que c'est Pause
+            stopButton.disabled = false;
+
+            // Définir l'histoire en cours
+            currentlyPlaying = id;
+
+            // Stocker les références et l'état
+            speechSynthesisMap[id] = {
+                utterance: mobileUtterance, // Référence même si on change le texte
+                statusIndicator: statusIndicator,
+                playButton: playButton,
+                pauseButton: pauseButton,
+                stopButton: stopButton,
+                isPaused: false,
+                // Ajout pour gérer l'arrêt manuel des paragraphes
+                stopPlayback: () => { isStoppedManually = true; },
+                isMobile: true // Marqueur pour la gestion pause/resume/stop
+            };
+
+            // Commencer la lecture du premier paragraphe
+            speakNextParagraph();
+
+             // Hack iOS: Forcer le démarrage/reprise si nécessaire
+             if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                forceMobileResume();
+            }
+
+        } catch (error) {
+            console.error("Erreur lors du lancement de la lecture mobile:", error);
+            alert("Impossible de lire l'histoire sur votre appareil mobile.");
+            resetStoryState(id); // Nettoyer l'état en cas d'erreur initiale
+        }
+    }
+
+
+    function setFrenchVoice(utterance, voices) {
+        const frenchVoice = voices.find(voice => voice.lang === 'fr-FR') || voices.find(voice => voice.lang.startsWith('fr'));
+        if (frenchVoice) {
+            utterance.voice = frenchVoice;
+        } else if (voices.length > 0) {
+             // Fallback vers la première voix si pas de français
+            utterance.voice = voices[0];
+             console.warn("Voix fr-FR non trouvée, utilisation de :", voices[0].name);
+        }
+        utterance.volume = 1;
+        // On pourrait ajouter rate et pitch ici si on avait les contrôles
+    }
+
+    function startSpeaking(id, utterance, statusIndicator, playButton, pauseButton, stopButton) {
+        try {
+             // Stocker l'instance AVANT de parler
+             speechSynthesisMap[id] = {
+                utterance: utterance,
+                statusIndicator: statusIndicator,
+                playButton: playButton,
+                pauseButton: pauseButton,
+                stopButton: stopButton,
+                isPaused: false,
+                isMobile: false // Marqueur pour la gestion pause/resume/stop
+            };
+
+            // Gérer la fin de la lecture
+            utterance.onend = () => {
+                 // Vérifie si l'arrêt n'était pas manuel via stopStory
+                 if (currentlyPlaying === id) {
+                     resetStoryState(id);
+                 }
+            };
+            utterance.onerror = (event) => {
+                console.error("Erreur de synthèse vocale desktop:", event);
+                 resetStoryState(id); // Nettoyer en cas d'erreur
+            };
+
+            window.speechSynthesis.cancel(); // Arrêter toute synthèse précédente juste avant de lancer la nouvelle
+            window.speechSynthesis.speak(utterance);
+
+            // Mettre à jour l'interface APRES avoir lancé speak()
+            statusIndicator.classList.add('status-active');
+            playButton.disabled = true;
+            pauseButton.disabled = false;
+            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            stopButton.disabled = false;
+
+            // Définir l'histoire en cours de lecture
+            currentlyPlaying = id;
+
+        } catch (error) {
+            console.error("Erreur lors de la lecture (desktop):", error);
+            alert("Impossible de lire l'histoire. Vérifiez les permissions ou la compatibilité de votre navigateur.");
+            resetStoryState(id); // Nettoyer l'état en cas d'erreur
+             delete speechSynthesisMap[id]; // Assurer la suppression
+        }
+    }
+
+
+    // Fonction pour mettre en pause/reprendre une histoire
     function pauseStory(id) {
         const storyData = speechSynthesisMap[id];
-        
-        if (storyData && !storyData.isPaused) {
+        if (!storyData || !window.speechSynthesis) return; // Vérifier si l'histoire existe et l'API est dispo
+
+         // Si en train de parler et non en pause -> mettre en pause
+        if (window.speechSynthesis.speaking && !storyData.isPaused) {
             window.speechSynthesis.pause();
             storyData.isPaused = true;
             storyData.pauseButton.innerHTML = '<i class="fas fa-play"></i> Reprendre';
             storyData.statusIndicator.style.animationPlayState = 'paused';
-        } else if (storyData && storyData.isPaused) {
+        }
+        // Si en pause (et potentiellement speaking=false sur certains navigateurs après pause) -> reprendre
+        else if (storyData.isPaused) {
+             // Vérifier si la synthèse était active avant la pause peut aider
+             // Mais la condition principale est storyData.isPaused
             window.speechSynthesis.resume();
             storyData.isPaused = false;
             storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
             storyData.statusIndicator.style.animationPlayState = 'running';
-            
-            // Sur iOS, forcer la reprise
-            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                setTimeout(() => {
-                    window.speechSynthesis.pause();
-                    window.speechSynthesis.resume();
-                }, 100);
+
+            // Hack iOS pour forcer la reprise
+            if (storyData.isMobile && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+               forceMobileResume();
             }
         }
+         // Cas rare : si on clique Pause/Reprendre alors que rien ne joue (devrait être désactivé mais par sécurité)
+         else if (!window.speechSynthesis.speaking && !storyData.isPaused) {
+             console.warn("Tentative de pause/reprise alors que rien ne joue pour " + id);
+             // On pourrait tenter de relancer la lecture ici, mais c'est risqué
+             // resetStoryState(id); // Ou simplement réinitialiser
+         }
     }
 
     // Fonction pour arrêter la lecture
     function stopStory(id) {
-        window.speechSynthesis.cancel();
-        resetStoryState(id);
-        currentlyPlaying = null;
+         const storyData = speechSynthesisMap[id];
+         if (storyData) {
+            // Si c'est une lecture mobile par paragraphe, signaler l'arrêt manuel
+             if (storyData.isMobile && storyData.stopPlayback) {
+                 storyData.stopPlayback();
+             }
+             // Annuler la synthèse vocale en cours
+             window.speechSynthesis.cancel();
+             // Réinitialiser l'état de l'interface (cela supprime aussi l'entrée dans speechSynthesisMap)
+             resetStoryState(id);
+         } else {
+              // Si pas de données mais on tente d'arrêter (ex: après une erreur)
+              // On peut forcer un cancel global au cas où
+              window.speechSynthesis.cancel();
+         }
+         // S'assurer que currentlyPlaying est bien remis à null si c'était cette histoire
+         if (currentlyPlaying === id) {
+             currentlyPlaying = null;
+         }
     }
+
 
     // Fonction pour réinitialiser l'état de l'interface d'une histoire
     function resetStoryState(id) {
-        const storyData = speechSynthesisMap[id];
-        
-        if (storyData) {
-            storyData.statusIndicator.classList.remove('status-active');
-            storyData.statusIndicator.style.animationPlayState = '';
-            storyData.playButton.disabled = false;
-            storyData.pauseButton.disabled = true;
-            storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
-            storyData.stopButton.disabled = true;
-            
-            // Supprimer les données de cette histoire
+        // Essayer de trouver l'élément DOM même si storyData n'existe plus
+        const storyElement = storiesContainer.querySelector(`.story[data-id="${CSS.escape(id)}"]`); // CSS.escape pour les caractères spéciaux dans l'id/filename
+
+        if (storyElement) {
+            const statusIndicator = storyElement.querySelector('.status-indicator');
+            const playButton = storyElement.querySelector('.btn-play');
+            const pauseButton = storyElement.querySelector('.btn-pause');
+            const stopButton = storyElement.querySelector('.btn-stop');
+
+            if (statusIndicator) statusIndicator.classList.remove('status-active');
+            if (statusIndicator) statusIndicator.style.animationPlayState = '';
+            if (playButton) playButton.disabled = false;
+            if (pauseButton) pauseButton.disabled = true;
+            if (pauseButton) pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            if (stopButton) stopButton.disabled = true;
+        }
+
+         // Supprimer les données de cette histoire de la map
+        if (speechSynthesisMap[id]) {
             delete speechSynthesisMap[id];
         }
+
+         // Si l'histoire qui vient de finir/s'arrêter était celle en cours
+        if (currentlyPlaying === id) {
+            currentlyPlaying = null;
+        }
     }
 
-    // Setup pour tous les appareils
+    // --- HELPER pour les hacks mobiles ---
+    function forceMobileResume() {
+         if (!isMobile || !/iPhone|iPad|iPod/.test(navigator.userAgent)) return;
+         // Ce hack est parfois nécessaire sur iOS pour que la synthèse démarre ou reprenne correctement
+         setTimeout(() => {
+             try {
+                 // On fait pause puis resume très rapidement
+                 window.speechSynthesis.pause();
+                 window.speechSynthesis.resume();
+             } catch(e) { console.warn("Force resume failed", e); }
+         }, 100); // Un court délai
+    }
+
+    // Setup initialisation audio pour mobile (interaction utilisateur requise)
     function setupAudio() {
         if (isMobile) {
-            document.body.addEventListener('click', function() {
-                setTimeout(() => {
-                    try {
-                        // Initialiser la synthèse vocale avec un texte vide
-                        const silence = new SpeechSynthesisUtterance('');
-                        silence.volume = 0;
-                        window.speechSynthesis.speak(silence);
-                        
-                        // Sur iOS, il faut aussi parfois faire pause/resume
-                        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                            setTimeout(() => {
-                                window.speechSynthesis.pause();
-                                window.speechSynthesis.resume();
-                            }, 100);
-                        }
-                    } catch (e) {
-                        console.error("Erreur lors de l'initialisation audio:", e);
-                    }
-                }, 500);
-            }, { once: true });
+             // Un seul listener pour la première interaction
+             const initAudio = () => {
+                 setTimeout(() => { // Timeout pour laisser le temps à l'UI de se stabiliser
+                     try {
+                         // Initialiser la synthèse vocale avec un texte vide et volume 0
+                         const silence = new SpeechSynthesisUtterance('');
+                         silence.volume = 0;
+                         window.speechSynthesis.speak(silence);
+                         console.log("Mobile audio initialized by user interaction.");
+
+                         // Sur iOS, le hack pause/resume peut être nécessaire même ici
+                         if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                             forceMobileResume();
+                         }
+                     } catch (e) {
+                         console.error("Erreur lors de l'initialisation audio mobile:", e);
+                     }
+                 }, 300); // Délai légèrement augmenté
+                 // Supprimer le listener après la première exécution
+                  document.body.removeEventListener('click', initAudio);
+                 document.body.removeEventListener('touchstart', initAudio);
+             };
+
+             // Ajouter les listeners pour 'click' ou 'touchstart'
+             document.body.addEventListener('click', initAudio, { once: true });
+             document.body.addEventListener('touchstart', initAudio, { once: true });
         }
     }
 
-    // Vérifier régulièrement si la synthèse s'est arrêtée de manière inattendue
-    function setupWatchdog() {
-        if (isMobile) {
-            setInterval(() => {
-                if (currentlyPlaying) {
-                    const storyData = speechSynthesisMap[currentlyPlaying];
-                    if (storyData && !storyData.isPaused && !window.speechSynthesis.speaking) {
-                        // La synthèse s'est arrêtée sans qu'on le demande, essayer de la relancer
-                        console.log("Watchdog: détection d'un arrêt inattendu de la synthèse vocale");
-                        window.speechSynthesis.resume();
-                    }
-                }
-            }, 1000);
-        }
-    }
+    // Watchdog (peut être simplifié ou supprimé si la gestion par paragraphe est fiable)
+    // function setupWatchdog() {
+    //     if (isMobile) {
+    //         setInterval(() => {
+    //             if (currentlyPlaying) {
+    //                 const storyData = speechSynthesisMap[currentlyPlaying];
+    //                 // Vérifie si on est censé parler, pas en pause, mais que speaking est false
+    //                 if (storyData && !storyData.isPaused && !window.speechSynthesis.speaking && window.speechSynthesis.pending) {
+    //                     console.log("Watchdog: SpeechSynthesis semble bloqué (pending), tentative de reprise...");
+    //                     window.speechSynthesis.resume();
+    //                     if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    //                         forceMobileResume(); // Peut-être utile ici aussi
+    //                     }
+    //                 }
+    //             }
+    //         }, 2000); // Vérifier toutes les 2 secondes
+    //     }
+    // }
 
-    // Initialiser au chargement
+    // Initialiser au chargement du DOM
     document.addEventListener('DOMContentLoaded', () => {
         loadStories();
-        setupAudio();
-        setupWatchdog();
+        setupAudio(); // Met en place le listener pour l'initialisation audio mobile
+        // setupWatchdog(); // Watchdog est moins critique avec la gestion par paragraphes, peut être commenté/supprimé
     });
 </script>
 </body>
