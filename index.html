@@ -7,613 +7,127 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* --- Styles CSS (inchangés) --- */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(135deg, #e0f7fa, #b2ebf2, #80deea);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #0277bd;
-            margin-bottom: 30px;
-            font-size: 2.2rem;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-        }
-
-        #stories {
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .story {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .story:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .story-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            gap: 10px; /* Ajout d'espace entre les éléments de l'en-tête */
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #cccccc;
-            margin-right: 0; /* L'espacement est géré par 'gap' sur .story-header */
-            flex-shrink: 0;
-        }
-
-        .status-active {
-            background-color: #4caf50;
-            box-shadow: 0 0 5px #4caf50;
-            animation: pulse 1.5s infinite;
-        }
-
-        .story-title {
-            font-weight: bold;
-            font-size: 1.1rem;
-            flex-grow: 1; /* Le titre prend l'espace restant */
-            margin-right: 10px; /* Espace avant la durée */
-        }
-
-        /* --- STYLE POUR LA DUREE --- */
-        .story-duration {
-            font-size: 0.85rem; /* Plus petit que le titre */
-            color: #555;      /* Couleur discrète */
-            white-space: nowrap; /* Empêche le retour à la ligne */
-            flex-shrink: 0; /* Empêche la durée de rétrécir */
-        }
-
-        .story-duration i {
-            margin-right: 4px; /* Espace entre l'icône et le texte */
-            color: #777;
-        }
-        /* --- FIN STYLE POUR LA DUREE --- */
-
-        .story-controls {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 8px 15px;
-            border-radius: 50px;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            transition: background-color 0.2s;
-            color: white;
-            flex: 1;
-            min-width: 90px;
-        }
-
-        .btn-play {
-            background-color: #4caf50;
-        }
-
-        .btn-play:hover {
-            background-color: #3e8e41;
-        }
-
-        .btn-pause {
-            background-color: #ff9800;
-        }
-
-        .btn-pause:hover {
-            background-color: #e68a00;
-        }
-
-        .btn-stop {
-            background-color: #f44336;
-        }
-
-        .btn-stop:hover {
-            background-color: #d32f2f;
-        }
-
-        .btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #555;
-            padding: 0 20px;
-        }
-
-        /* Styles spécifiques pour mobile */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; background: linear-gradient(135deg, #e0f7fa, #b2ebf2, #80deea); min-height: 100vh; color: #333; }
+        .container { width: 90%; max-width: 800px; margin: 20px auto; padding: 20px; background-color: rgba(255, 255, 255, 0.9); border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+        h1 { text-align: center; color: #0277bd; margin-bottom: 30px; font-size: 2.2rem; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); }
+        #stories { margin-top: 20px; width: 100%; }
+        .story { padding: 15px; border-radius: 10px; margin-bottom: 15px; background-color: #fff; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+        .story:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .story-header { display: flex; align-items: center; margin-bottom: 12px; gap: 10px; }
+        .status-indicator { width: 12px; height: 12px; border-radius: 50%; background-color: #cccccc; margin-right: 0; flex-shrink: 0; }
+        .status-active { background-color: #4caf50; box-shadow: 0 0 5px #4caf50; animation: pulse 1.5s infinite; }
+        .story-title { font-weight: bold; font-size: 1.1rem; flex-grow: 1; margin-right: 10px; }
+        .story-duration { font-size: 0.85rem; color: #555; white-space: nowrap; flex-shrink: 0; }
+        .story-duration i { margin-right: 4px; color: #777; }
+        .story-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn { padding: 8px 15px; border-radius: 50px; font-size: 14px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 5px; transition: background-color 0.2s; color: white; flex: 1; min-width: 90px; }
+        .btn-play { background-color: #4caf50; } .btn-play:hover { background-color: #3e8e41; }
+        .btn-pause { background-color: #ff9800; } .btn-pause:hover { background-color: #e68a00; }
+        .btn-stop { background-color: #f44336; } .btn-stop:hover { background-color: #d32f2f; }
+        .btn:disabled { background-color: #cccccc; cursor: not-allowed; opacity: 0.7; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .footer { margin-top: 30px; text-align: center; font-size: 0.9rem; color: #555; padding: 0 20px; }
         @media (max-width: 600px) {
-             .story-header {
-                flex-wrap: wrap; /* Permet le retour à la ligne si pas assez de place */
-                row-gap: 5px; /* Espace vertical si retour à la ligne */
-            }
-            .story-title {
-                /* Ajustement pour mieux s'aligner avec l'indicateur + gap */
-                 width: calc(100% - 12px - 10px); /* Largeur indicateur + gap */
-                margin-right: 0;
-                order: 1; /* Place le titre après l'indicateur */
-            }
-             .story-duration {
-                 order: 2; /* Place la durée après le titre */
-                 width: 100%;   /* Prend toute la largeur */
-                 text-align: right; /* Aligne à droite */
-                 /* S'aligne avec le début du titre (largeur indicateur + gap) */
-                 padding-left: calc(12px + 10px);
-                 margin-top: -5px; /* Réduit l'espace vertical */
-            }
-            .status-indicator {
-                order: 0; /* Place l'indicateur en premier */
-            }
-
-            .story-controls {
-                justify-content: center;
-            }
-
-            .btn {
-                padding: 10px 15px;
-                font-size: 16px;
-            }
-
-            h1 {
-                font-size: 1.8rem;
-            }
-        }
-
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0,0,0,0.2);
-            border-radius: 50%;
-            border-top-color: #0277bd;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .error-message {
-            color: #f44336;
-            text-align: center;
-            margin: 20px 0;
-            font-weight: bold;
-        }
-
-        .compatibility-message {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 10px 15px;
-            margin: 10px 0;
-            border-radius: 0 4px 4px 0;
-            display: none;
-        }
+             .story-header { flex-wrap: wrap; row-gap: 5px; }
+             .story-title { width: calc(100% - 12px - 10px); margin-right: 0; order: 1; }
+             .story-duration { order: 2; width: 100%; text-align: right; padding-left: calc(12px + 10px); margin-top: -5px; }
+             .status-indicator { order: 0; }
+             .story-controls { justify-content: center; }
+             .btn { padding: 10px 15px; font-size: 16px; }
+             h1 { font-size: 1.8rem; } }
+        .loader { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.2); border-radius: 50%; border-top-color: #0277bd; animation: spin 1s ease-in-out infinite; margin-right: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { text-align: center; margin: 20px 0; }
+        .error-message { color: #f44336; text-align: center; margin: 20px 0; font-weight: bold; }
+        .compatibility-message { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 15px; margin: 10px 0; border-radius: 0 4px 4px 0; display: none; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1><i class="fas fa-book-open"></i> Lecteur d'Histoires</h1>
-        <div id="compatibility-warning" class="compatibility-message">
-            <i class="fas fa-exclamation-triangle"></i>
-            Sur certains appareils mobiles, la synthèse vocale peut nécessiter des permissions ou ne pas fonctionner correctement.
-        </div>
+        <div id="compatibility-warning" class="compatibility-message"></div>
         <div id="stories">
             <div class="loading-text">
                 <div class="loader"></div> Chargement des histoires...
             </div>
         </div>
     </div>
-    <div class="footer">
-        Lecteur d'histoires - Profitez d'une lecture à haute voix
-    </div>
+    <div class="footer">Lecteur d'histoires - Profitez d'une lecture à haute voix</div>
 
 <script>
     const storiesContainer = document.getElementById('stories');
     const compatibilityWarning = document.getElementById('compatibility-warning');
     let currentlyPlaying = null;
     const isMobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
-
     const AVERAGE_WPM = 140;
 
-    function estimateDuration(text) {
-        if (!text) return '0:00';
-        const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-        const wordCount = words.length;
-        if (wordCount === 0) return '0:00';
-        const durationMinutes = wordCount / AVERAGE_WPM;
-        const totalSeconds = Math.round(durationMinutes * 60);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
-        return `${minutes}:${formattedSeconds}`;
-    }
+    function estimateDuration(text) { /* ... (inchangé) ... */ if (!text) return '0:00'; const words = text.trim().split(/\s+/).filter(word => word.length > 0); const wordCount = words.length; if (wordCount === 0) return '0:00'; const durationMinutes = wordCount / AVERAGE_WPM; const totalSeconds = Math.round(durationMinutes * 60); const minutes = Math.floor(totalSeconds / 60); const seconds = totalSeconds % 60; const formattedSeconds = seconds < 10 ? '0' + seconds : seconds; return `${minutes}:${formattedSeconds}`; }
+    function checkCompatibility() { /* ... (inchangé) ... */ const compatible = ('speechSynthesis' in window) && ('SpeechSynthesisUtterance' in window); if (!compatible) { compatibilityWarning.style.display = 'block'; compatibilityWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Votre navigateur ne prend pas en charge la synthèse vocale.'; } else if (isMobile && compatibilityWarning.style.display !== 'block') { compatibilityWarning.style.display = 'block'; compatibilityWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sur certains appareils mobiles, la synthèse vocale peut nécessiter des permissions ou ne pas fonctionner correctement.'; } return compatible; }
 
-    function checkCompatibility() {
-        const compatible = ('speechSynthesis' in window) && ('SpeechSynthesisUtterance' in window);
-        if (!compatible) {
-            compatibilityWarning.style.display = 'block';
-            compatibilityWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Votre navigateur ne prend pas en charge la synthèse vocale.';
-        } else if (isMobile && compatibilityWarning.style.display !== 'block') {
-             compatibilityWarning.style.display = 'block';
-             compatibilityWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sur certains appareils mobiles, la synthèse vocale peut nécessiter des permissions ou ne pas fonctionner correctement.';
-        }
-        return compatible;
-    }
-
-    async function loadStories() {
-        const stories = [
-            'histoire1.txt', 'histoire2.txt', 'histoire3.txt',
-            'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
-            'histoire7.txt', 'histoire8.txt', 'histoire9.txt'
-        ];
-
-        checkCompatibility();
-        storiesContainer.innerHTML = '';
-        let loadedStories = 0;
-        let errorOccurred = false;
-
-        if (!('speechSynthesis' in window)) {
-             const errorMsg = storiesContainer.querySelector('.error-message') || document.createElement('div');
-             errorMsg.className = 'error-message';
-             errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> La synthèse vocale n\'est pas disponible sur ce navigateur.';
-             if (!storiesContainer.contains(errorMsg)) storiesContainer.appendChild(errorMsg);
-             return;
-        }
-
-        for (let i = 0; i < stories.length; i++) {
-            const storyFileName = stories[i];
-            try {
-                const response = await fetch(`stories/${storyFileName}?v=${new Date().getTime()}`);
-                if (!response.ok) throw new Error(`Erreur ${response.status}`);
-                const text = await response.text();
-                const title = text.split('\n')[0].trim() || `Histoire ${i+1}`;
-                createStoryElement(storyFileName, title, text);
-                loadedStories++;
-            } catch (error) {
-                console.error(`[loadStories] Erreur chargement ${storyFileName}: ${error.message}`);
-                errorOccurred = true;
-                const errorText = `Histoire ${i+1}\n\nImpossible de charger le contenu. Vérifiez que le fichier "${storyFileName}" existe bien dans le dossier "stories".`;
-                createStoryElement(storyFileName, `Histoire ${i+1} (Erreur)`, errorText);
-            }
-        }
-
-        if (errorOccurred) {
-            const errorMessage = document.createElement('div');
-            errorMessage.className = 'error-message';
-            errorMessage.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Certains fichiers d'histoires n'ont pas pu être chargés.`;
-            storiesContainer.insertBefore(errorMessage, storiesContainer.firstChild);
-        }
-         if (loadedStories === 0 && !errorOccurred && stories.length > 0) {
-            const emptyMessage = document.createElement('div');
-            emptyMessage.className = 'loading-text';
-            emptyMessage.textContent = "Aucune histoire n'a pu être chargée.";
-             storiesContainer.appendChild(emptyMessage);
-        } else if (stories.length === 0) {
-            const emptyMessage = document.createElement('div');
-            emptyMessage.className = 'loading-text';
-            emptyMessage.textContent = "Aucune histoire à afficher.";
-            storiesContainer.appendChild(emptyMessage);
-        }
-    }
-
-    function createStoryElement(id, title, text) {
-        // ... (Code de création d'élément inchangé) ...
-        const storyElement = document.createElement('div');
-        storyElement.className = 'story';
-        storyElement.dataset.id = id;
-
-        const storyHeader = document.createElement('div');
-        storyHeader.className = 'story-header';
-
-        const statusIndicator = document.createElement('div');
-        statusIndicator.className = 'status-indicator';
-
-        const titleElement = document.createElement('div');
-        titleElement.className = 'story-title';
-        titleElement.textContent = title;
-
-        const estimatedDuration = estimateDuration(text);
-        const durationElement = document.createElement('span');
-        durationElement.className = 'story-duration';
-        durationElement.innerHTML = `<i class="far fa-clock"></i> ${estimatedDuration}`;
-        durationElement.title = `Durée estimée (~${AVERAGE_WPM} mots/minute)`;
-
-        storyHeader.appendChild(statusIndicator);
-        storyHeader.appendChild(titleElement);
-        storyHeader.appendChild(durationElement);
-
-        const controlsElement = document.createElement('div');
-        controlsElement.className = 'story-controls';
-
-        const playButton = document.createElement('button');
-        playButton.className = 'btn btn-play';
-        playButton.innerHTML = '<i class="fas fa-play"></i> Lire';
-        playButton.addEventListener('click', () => readStory(id, text, statusIndicator, playButton, pauseButton, stopButton));
-
-        const pauseButton = document.createElement('button');
-        pauseButton.className = 'btn btn-pause';
-        pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
-        pauseButton.disabled = true;
-        pauseButton.addEventListener('click', () => pauseStory(id)); // Passe l'id
-
-        const stopButton = document.createElement('button');
-        stopButton.className = 'btn btn-stop';
-        stopButton.innerHTML = '<i class="fas fa-stop"></i> Stop';
-        stopButton.disabled = true;
-        stopButton.addEventListener('click', () => stopStory(id)); // Passe l'id
-
-        controlsElement.appendChild(playButton);
-        controlsElement.appendChild(pauseButton);
-        controlsElement.appendChild(stopButton);
-
-        storyElement.appendChild(storyHeader);
-        storyElement.appendChild(controlsElement);
-
-        storiesContainer.appendChild(storyElement);
+    async function loadStories() { /* ... (inchangé, avec logs) ... */
+        const stories = [ 'histoire1.txt', 'histoire2.txt', 'histoire3.txt', 'histoire4.txt', 'histoire5.txt', 'histoire6.txt', 'histoire7.txt', 'histoire8.txt', 'histoire9.txt' ];
+        checkCompatibility(); storiesContainer.innerHTML = ''; let loadedStories = 0; let errorOccurred = false;
+        if (!('speechSynthesis' in window)) { const errorMsg = storiesContainer.querySelector('.error-message') || document.createElement('div'); errorMsg.className = 'error-message'; errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> La synthèse vocale n\'est pas disponible sur ce navigateur.'; if (!storiesContainer.contains(errorMsg)) storiesContainer.appendChild(errorMsg); return; }
+        for (let i = 0; i < stories.length; i++) { const storyFileName = stories[i]; try { const response = await fetch(`stories/${storyFileName}?v=${new Date().getTime()}`); if (!response.ok) throw new Error(`Erreur ${response.status}`); const text = await response.text(); const title = text.split('\n')[0].trim() || `Histoire ${i+1}`; createStoryElement(storyFileName, title, text); loadedStories++; } catch (error) { console.error(`[loadStories] Erreur chargement ${storyFileName}: ${error.message}`); errorOccurred = true; const errorText = `Histoire ${i+1}\n\nImpossible de charger le contenu. Vérifiez que le fichier "${storyFileName}" existe bien dans le dossier "stories".`; createStoryElement(storyFileName, `Histoire ${i+1} (Erreur)`, errorText); } }
+        if (errorOccurred) { const errorMessage = document.createElement('div'); errorMessage.className = 'error-message'; errorMessage.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Certains fichiers d'histoires n'ont pas pu être chargés.`; storiesContainer.insertBefore(errorMessage, storiesContainer.firstChild); }
+        if (loadedStories === 0 && !errorOccurred && stories.length > 0) { const emptyMessage = document.createElement('div'); emptyMessage.className = 'loading-text'; emptyMessage.textContent = "Aucune histoire n'a pu être chargée."; storiesContainer.appendChild(emptyMessage); } else if (stories.length === 0) { const emptyMessage = document.createElement('div'); emptyMessage.className = 'loading-text'; emptyMessage.textContent = "Aucune histoire à afficher."; storiesContainer.appendChild(emptyMessage); }
+     }
+    function createStoryElement(id, title, text) { /* ... (inchangé) ... */
+        const storyElement = document.createElement('div'); storyElement.className = 'story'; storyElement.dataset.id = id;
+        const storyHeader = document.createElement('div'); storyHeader.className = 'story-header';
+        const statusIndicator = document.createElement('div'); statusIndicator.className = 'status-indicator';
+        const titleElement = document.createElement('div'); titleElement.className = 'story-title'; titleElement.textContent = title;
+        const estimatedDuration = estimateDuration(text); const durationElement = document.createElement('span'); durationElement.className = 'story-duration'; durationElement.innerHTML = `<i class="far fa-clock"></i> ${estimatedDuration}`; durationElement.title = `Durée estimée (~${AVERAGE_WPM} mots/minute)`;
+        storyHeader.appendChild(statusIndicator); storyHeader.appendChild(titleElement); storyHeader.appendChild(durationElement);
+        const controlsElement = document.createElement('div'); controlsElement.className = 'story-controls';
+        const playButton = document.createElement('button'); playButton.className = 'btn btn-play'; playButton.innerHTML = '<i class="fas fa-play"></i> Lire'; playButton.addEventListener('click', () => readStory(id, text, statusIndicator, playButton, pauseButton, stopButton));
+        const pauseButton = document.createElement('button'); pauseButton.className = 'btn btn-pause'; pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause'; pauseButton.disabled = true; pauseButton.addEventListener('click', () => pauseStory(id));
+        const stopButton = document.createElement('button'); stopButton.className = 'btn btn-stop'; stopButton.innerHTML = '<i class="fas fa-stop"></i> Stop'; stopButton.disabled = true; stopButton.addEventListener('click', () => stopStory(id));
+        controlsElement.appendChild(playButton); controlsElement.appendChild(pauseButton); controlsElement.appendChild(stopButton);
+        storyElement.appendChild(storyHeader); storyElement.appendChild(controlsElement); storiesContainer.appendChild(storyElement);
     }
 
     const speechSynthesisMap = {};
 
-    function readStory(id, text, statusIndicator, playButton, pauseButton, stopButton) {
-        if (currentlyPlaying && currentlyPlaying !== id) {
-            console.log(`[readStory] Stopping previous story: ${currentlyPlaying}`);
-            stopStory(currentlyPlaying);
-        }
-
+    function readStory(id, text, statusIndicator, playButton, pauseButton, stopButton) { /* ... (inchangé, avec logs) ... */
+        if (currentlyPlaying && currentlyPlaying !== id) { console.log(`[readStory] Stopping previous story: ${currentlyPlaying}`); stopStory(currentlyPlaying); }
         const existingData = speechSynthesisMap[id];
-        if (existingData && !existingData.isPaused) {
-            console.log(`[readStory] Already playing: ${id}`);
-            return;
-        }
-        if (existingData && existingData.isPaused) {
-            console.log(`[readStory] Resuming paused story: ${id}`);
-            pauseStory(id);
-            return;
-        }
-
-        if (!checkCompatibility()) {
-             console.warn(`[readStory] Compatibility check failed.`);
-             return;
-        }
-
+        if (existingData && !existingData.isPaused) { console.log(`[readStory] Already playing: ${id}`); return; }
+        if (existingData && existingData.isPaused) { console.log(`[readStory] Resuming paused story: ${id}`); pauseStory(id); return; }
+        if (!checkCompatibility()) { console.warn(`[readStory] Compatibility check failed.`); return; }
         console.log(`[readStory] Starting new story: ${id}. Mobile: ${isMobile}`);
-        if (isMobile) {
-            readStoryMobile(id, text, statusIndicator, playButton, pauseButton, stopButton);
-        } else {
-            readStoryDesktop(id, text, statusIndicator, playButton, pauseButton, stopButton);
-        }
+        if (isMobile) { readStoryMobile(id, text, statusIndicator, playButton, pauseButton, stopButton); } else { readStoryDesktop(id, text, statusIndicator, playButton, pauseButton, stopButton); }
     }
-
-    function readStoryDesktop(id, text, statusIndicator, playButton, pauseButton, stopButton) {
-        // ... (Code Desktop inchangé) ...
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'fr-FR';
-
-        const setupAndSpeak = (voices) => {
-            setFrenchVoice(utterance, voices);
-            startSpeaking(id, utterance, statusIndicator, playButton, pauseButton, stopButton);
-        };
-
-        let voices = window.speechSynthesis.getVoices();
-        if (voices.length === 0 && 'onvoiceschanged' in window.speechSynthesis) {
-            window.speechSynthesis.onvoiceschanged = () => setupAndSpeak(window.speechSynthesis.getVoices());
-        } else {
-            setupAndSpeak(voices);
-        }
-    }
-
-    // --- AJOUT DE LOGS dans readStoryMobile ---
-     function readStoryMobile(id, text, statusIndicator, playButton, pauseButton, stopButton) {
-        try {
-            console.log(`[readStoryMobile] Cancelling existing speech for ${id}`);
-            window.speechSynthesis.cancel();
-
-            const mobileUtterance = new SpeechSynthesisUtterance();
-            mobileUtterance.lang = 'fr-FR';
-
-            const paragraphs = text.split('\n').filter(p => p.trim().length > 0);
-            let currentParagraphIndex = 0;
-            let isStoppedManually = false;
-            let nextParagraphTimeoutId = null;
-
+    function readStoryDesktop(id, text, statusIndicator, playButton, pauseButton, stopButton) { /* ... (inchangé) ... */
+        const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'fr-FR';
+        const setupAndSpeak = (voices) => { setFrenchVoice(utterance, voices); startSpeaking(id, utterance, statusIndicator, playButton, pauseButton, stopButton); };
+        let voices = window.speechSynthesis.getVoices(); if (voices.length === 0 && 'onvoiceschanged' in window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = () => setupAndSpeak(window.speechSynthesis.getVoices()); } else { setupAndSpeak(voices); }
+     }
+    function readStoryMobile(id, text, statusIndicator, playButton, pauseButton, stopButton) { /* ... (inchangé, avec logs) ... */
+         try {
+            console.log(`[readStoryMobile] Cancelling existing speech for ${id}`); window.speechSynthesis.cancel();
+            const mobileUtterance = new SpeechSynthesisUtterance(); mobileUtterance.lang = 'fr-FR';
+            const paragraphs = text.split('\n').filter(p => p.trim().length > 0); let currentParagraphIndex = 0; let isStoppedManually = false; let nextParagraphTimeoutId = null;
             const speakNextParagraph = () => {
                 const storyData = speechSynthesisMap[id];
-
-                if (!storyData || isStoppedManually || currentParagraphIndex >= paragraphs.length || currentlyPlaying !== id) {
-                     console.log(`[speakNextParagraph][${id}] Stopping. Reason: stopped=${isStoppedManually}, index=${currentParagraphIndex}, paragraphs=${paragraphs.length}, current=${currentlyPlaying}`);
-                     if (!isStoppedManually && currentlyPlaying === id) {
-                         resetStoryState(id);
-                     }
-                     return;
-                }
-
-                if (storyData.isPaused) {
-                    console.log(`[speakNextParagraph][${id}] Paused state detected, returning.`);
-                    return;
-                }
-
-                console.log(`[speakNextParagraph][${id}] Preparing paragraph ${currentParagraphIndex + 1}/${paragraphs.length}`);
-                const currentText = paragraphs[currentParagraphIndex];
-                mobileUtterance.text = currentText;
-
-                const voices = window.speechSynthesis.getVoices();
-                const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
-                if (frenchVoice) mobileUtterance.voice = frenchVoice;
-
+                if (!storyData || isStoppedManually || currentParagraphIndex >= paragraphs.length || currentlyPlaying !== id) { console.log(`[speakNextParagraph][${id}] Stopping. Reason: stopped=${isStoppedManually}, index=${currentParagraphIndex}, paragraphs=${paragraphs.length}, current=${currentlyPlaying}`); if (!isStoppedManually && currentlyPlaying === id) { resetStoryState(id); } return; }
+                if (storyData.isPaused) { console.log(`[speakNextParagraph][${id}] Paused state detected, returning.`); return; }
+                console.log(`[speakNextParagraph][${id}] Preparing paragraph ${currentParagraphIndex + 1}/${paragraphs.length}`); const currentText = paragraphs[currentParagraphIndex]; mobileUtterance.text = currentText;
+                const voices = window.speechSynthesis.getVoices(); const frenchVoice = voices.find(voice => voice.lang.includes('fr')); if (frenchVoice) mobileUtterance.voice = frenchVoice;
                 mobileUtterance.onend = () => {
-                    console.log(`[speakNextParagraph][${id}] onend: Paragraph ${currentParagraphIndex + 1} finished.`);
-                    // Important : Ne pas incrémenter ici si on veut que resume redise le même
-                    // Modifions: l'index est incrémenté seulement si la lecture se poursuit naturellement
-                    // currentParagraphIndex++; // Déplacé après le check de pause/stop
-
-                    // --- Vérification avant de passer au suivant ---
-                     const currentStoryData = speechSynthesisMap[id]; // Re-vérifier l'état actuel
-                     if (currentStoryData && !currentStoryData.isPaused && !isStoppedManually && currentlyPlaying === id) {
-                         currentParagraphIndex++; // Incrémenter seulement si on continue
-                         console.log(`[speakNextParagraph][${id}] onend: Scheduling next paragraph (${currentParagraphIndex + 1})`);
-                         if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId);
-                         nextParagraphTimeoutId = setTimeout(speakNextParagraph, 75); // Augmenté légèrement le délai inter-paragraphe
-                     } else {
-                          console.log(`[speakNextParagraph][${id}] onend: Not scheduling next paragraph. isPaused=${currentStoryData?.isPaused}, stopped=${isStoppedManually}, current=${currentlyPlaying}`);
-                          // Si c'est la fin naturelle (pas arrêté/pausé), reset.
-                          if (currentParagraphIndex >= paragraphs.length -1 && !currentStoryData?.isPaused && !isStoppedManually && currentlyPlaying === id) {
-                               resetStoryState(id);
-                          }
-                     }
-                     // --- Fin Vérification ---
+                    console.log(`[speakNextParagraph][${id}] onend: Paragraph ${currentParagraphIndex + 1} finished.`); const currentStoryData = speechSynthesisMap[id];
+                    if (currentStoryData && !currentStoryData.isPaused && !isStoppedManually && currentlyPlaying === id) { currentParagraphIndex++; console.log(`[speakNextParagraph][${id}] onend: Scheduling next paragraph (${currentParagraphIndex + 1})`); if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId); nextParagraphTimeoutId = setTimeout(speakNextParagraph, 75); } else { console.log(`[speakNextParagraph][${id}] onend: Not scheduling next paragraph. isPaused=${currentStoryData?.isPaused}, stopped=${isStoppedManually}, current=${currentlyPlaying}`); if (currentParagraphIndex >= paragraphs.length - 1 && !currentStoryData?.isPaused && !isStoppedManually && currentlyPlaying === id) { resetStoryState(id); } }
                 };
-
-                mobileUtterance.onerror = (event) => {
-                    console.error(`[speakNextParagraph][${id}] onerror: Paragraph ${currentParagraphIndex + 1}. Error: ${event.error}`, event);
-                    isStoppedManually = true; // Marquer comme arrêté
-                    resetStoryState(id);
-                };
-
-                 if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
-                     console.log(`[speakNextParagraph][${id}] Calling speak() for paragraph ${currentParagraphIndex + 1}`);
-                     window.speechSynthesis.speak(mobileUtterance);
-                 } else {
-                     console.warn(`[speakNextParagraph][${id}] Synthesis busy, retrying paragraph ${currentParagraphIndex + 1} shortly.`);
-                     if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId);
-                     nextParagraphTimeoutId = setTimeout(speakNextParagraph, 300); // Délai de relance augmenté
-                 }
+                mobileUtterance.onerror = (event) => { console.error(`[speakNextParagraph][${id}] onerror: Paragraph ${currentParagraphIndex + 1}. Error: ${event.error}`, event); isStoppedManually = true; resetStoryState(id); };
+                if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) { console.log(`[speakNextParagraph][${id}] Calling speak() for paragraph ${currentParagraphIndex + 1}`); window.speechSynthesis.speak(mobileUtterance); } else { console.warn(`[speakNextParagraph][${id}] Synthesis busy, retrying paragraph ${currentParagraphIndex + 1} shortly.`); if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId); nextParagraphTimeoutId = setTimeout(speakNextParagraph, 300); }
             };
-
-            // Stocker l'état
-            speechSynthesisMap[id] = {
-                utterance: mobileUtterance,
-                statusIndicator: statusIndicator,
-                playButton: playButton,
-                pauseButton: pauseButton,
-                stopButton: stopButton,
-                isPaused: false,
-                stopPlayback: () => {
-                    console.log(`[stopPlayback][${id}] Stop requested.`);
-                    isStoppedManually = true;
-                    if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId);
-                 },
-                getCurrentParagraphIndex: () => currentParagraphIndex,
-                speakFunc: speakNextParagraph, // Stocker la référence
-                isMobile: true
-            };
-
-            // Mettre à jour l'interface et démarrer
-            statusIndicator.classList.add('status-active');
-            playButton.disabled = true;
-            pauseButton.disabled = false;
-            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
-            stopButton.disabled = false;
-            currentlyPlaying = id;
-            console.log(`[readStoryMobile][${id}] Starting first paragraph.`);
-            speakNextParagraph();
-
-            // applyIOSAudioHack(); // Moins pertinent pour Android
-
-        } catch (error) {
-            console.error(`[readStoryMobile][${id}] Error starting playback:`, error);
-            alert("Impossible de démarrer la lecture (mobile).");
-            resetStoryState(id);
-        }
+            speechSynthesisMap[id] = { utterance: mobileUtterance, statusIndicator: statusIndicator, playButton: playButton, pauseButton: pauseButton, stopButton: stopButton, isPaused: false, stopPlayback: () => { console.log(`[stopPlayback][${id}] Stop requested.`); isStoppedManually = true; if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId); }, getCurrentParagraphIndex: () => currentParagraphIndex, speakFunc: speakNextParagraph, isMobile: true };
+            statusIndicator.classList.add('status-active'); playButton.disabled = true; pauseButton.disabled = false; pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause'; stopButton.disabled = false; currentlyPlaying = id;
+            console.log(`[readStoryMobile][${id}] Starting first paragraph.`); speakNextParagraph();
+        } catch (error) { console.error(`[readStoryMobile][${id}] Error starting playback:`, error); alert("Impossible de démarrer la lecture (mobile)."); resetStoryState(id); }
     }
-    // --- FIN AJOUT LOGS ---
-
-    function setFrenchVoice(utterance, voices) {
-        // ... (inchangé) ...
-        const frenchVoice = voices.find(voice => voice.lang === 'fr-FR' || voice.lang.startsWith('fr'));
-        if (frenchVoice) {
-            utterance.voice = frenchVoice;
-        } else if (voices && voices.length > 0) {
-            utterance.voice = voices[0];
-            console.warn("Voix fr-FR non trouvée, utilise:", voices[0].name);
-        } else {
-             console.warn("Aucune voix disponible pour la synthèse.");
-        }
-        utterance.volume = 1;
-    }
-
-    function startSpeaking(id, utterance, statusIndicator, playButton, pauseButton, stopButton) {
-        // ... (inchangé) ...
-        try {
-            speechSynthesisMap[id] = {
-                utterance: utterance,
-                statusIndicator: statusIndicator,
-                playButton: playButton,
-                pauseButton: pauseButton,
-                stopButton: stopButton,
-                isPaused: false,
-                stopPlayback: () => {}, speakFunc: null, isMobile: false
-            };
-
-            utterance.onend = () => { if (currentlyPlaying === id) resetStoryState(id); };
-            utterance.onerror = (event) => { console.error("Erreur synthèse vocale desktop:", event); resetStoryState(id); };
-
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
-
-            statusIndicator.classList.add('status-active');
-            playButton.disabled = true;
-            pauseButton.disabled = false;
-            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
-            stopButton.disabled = false;
-            currentlyPlaying = id;
-        } catch (error) {
-            console.error("Erreur lecture (desktop):", error);
-            alert("Impossible de lire l'histoire (desktop).");
-            resetStoryState(id); delete speechSynthesisMap[id];
-        }
-    }
+    function setFrenchVoice(utterance, voices) { /* ... (inchangé) ... */ const frenchVoice = voices.find(voice => voice.lang === 'fr-FR' || voice.lang.startsWith('fr')); if (frenchVoice) { utterance.voice = frenchVoice; } else if (voices && voices.length > 0) { utterance.voice = voices[0]; console.warn("Voix fr-FR non trouvée, utilise:", voices[0].name); } else { console.warn("Aucune voix disponible pour la synthèse."); } utterance.volume = 1; }
+    function startSpeaking(id, utterance, statusIndicator, playButton, pauseButton, stopButton) { /* ... (inchangé) ... */ try { speechSynthesisMap[id] = { utterance: utterance, statusIndicator: statusIndicator, playButton: playButton, pauseButton: pauseButton, stopButton: stopButton, isPaused: false, stopPlayback: () => {}, speakFunc: null, isMobile: false }; utterance.onend = () => { if (currentlyPlaying === id) resetStoryState(id); }; utterance.onerror = (event) => { console.error("Erreur synthèse vocale desktop:", event); resetStoryState(id); }; window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance); statusIndicator.classList.add('status-active'); playButton.disabled = true; pauseButton.disabled = false; pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause'; stopButton.disabled = false; currentlyPlaying = id; } catch (error) { console.error("Erreur lecture (desktop):", error); alert("Impossible de lire l'histoire (desktop)."); resetStoryState(id); delete speechSynthesisMap[id]; } }
 
     // --- NOUVELLE VERSION de pauseStory (Stratégie Reprise Mobile Simplifiée) ---
     function pauseStory(id) {
@@ -626,8 +140,7 @@
         // --- CAS 1: Mettre en Pause ---
         if (!storyData.isPaused) {
             console.log(`[pauseStory][${id}] Pausing...`);
-            // Appel standard, même si l'efficacité est variable sur mobile
-             window.speechSynthesis.pause();
+            window.speechSynthesis.pause(); // Appel standard
             storyData.isPaused = true;
             storyData.pauseButton.innerHTML = '<i class="fas fa-play"></i> Reprendre';
             if (storyData.statusIndicator) storyData.statusIndicator.style.animationPlayState = 'paused';
@@ -644,27 +157,28 @@
                 // Stratégie Mobile Simplifiée: Tenter resume() ET relancer speakFunc()
                 console.log(`[pauseStory][${id}] Mobile Resume: Trying resume() AND restarting speakFunc().`);
 
-                // 1. Tenter resume() (peut échouer silencieusement)
+                // 1. Tenter resume() (peut échouer silencieusement ou ne rien faire)
                 window.speechSynthesis.resume();
 
                 // 2. Relancer immédiatement la fonction de lecture du paragraphe actuel
-                //    (au cas où resume() n'aurait rien fait)
-                if (storyData.speakFunc && currentlyPlaying === id) {
-                     console.log(`[pauseStory][${id}] Immediately calling speakFunc() after resume().`);
-                     // Pas de setTimeout, on essaie direct.
-                     // speakFunc va vérifier si isPaused est false (ce qui est le cas)
-                     // et devrait tenter de parler.
-                     try {
-                        storyData.speakFunc();
-                     } catch(e) {
-                         console.error(`[pauseStory][${id}] Error calling speakFunc directly on resume:`, e);
-                         resetStoryState(id); // Reset si l'appel direct échoue
-                     }
-                } else {
-                     console.warn(`[pauseStory][${id}] Cannot call speakFunc on resume (missing or state changed).`);
-                     // Si speakFunc manque ou l'état a changé, on reset pour être sûr
-                      resetStoryState(id);
-                }
+                //    Utiliser un micro-délai (ex: 50ms) pour laisser resume() tenter quelque chose,
+                //    mais surtout pour s'assurer que le thread JS est libéré brièvement.
+                setTimeout(() => {
+                    const currentStoryData = speechSynthesisMap[id]; // Re-vérifier état
+                    if (currentStoryData && !currentStoryData.isPaused && currentlyPlaying === id && currentStoryData.speakFunc) {
+                         console.log(`[pauseStory][${id}] Calling speakFunc() after short delay.`);
+                         try {
+                            currentStoryData.speakFunc();
+                         } catch(e) {
+                             console.error(`[pauseStory][${id}] Error calling speakFunc directly on resume:`, e);
+                             resetStoryState(id); // Reset si l'appel direct échoue
+                         }
+                    } else {
+                         console.warn(`[pauseStory][${id}] State changed or speakFunc missing during resume delay.`);
+                         // Ne pas reset ici, car l'état peut avoir été changé par un clic Stop ou autre.
+                         // Si la lecture ne reprend pas, l'utilisateur devra cliquer Play.
+                    }
+                 }, 50); // Court délai de 50ms
 
             } else {
                 // Stratégie Desktop: Utiliser resume() standard
@@ -675,66 +189,14 @@
     }
     // --- FIN NOUVELLE VERSION ---
 
-
-    function stopStory(id) {
-        console.log(`[stopStory][${id}] Stop requested.`);
-        const storyData = speechSynthesisMap[id];
-        if (storyData && storyData.stopPlayback) {
-             storyData.stopPlayback();
-        }
-        window.speechSynthesis.cancel();
-        resetStoryState(id);
+    function stopStory(id) { /* ... (inchangé, avec logs) ... */ console.log(`[stopStory][${id}] Stop requested.`); const storyData = speechSynthesisMap[id]; if (storyData && storyData.stopPlayback) { storyData.stopPlayback(); } window.speechSynthesis.cancel(); resetStoryState(id); }
+    function resetStoryState(id) { /* ... (inchangé, avec logs) ... */
+        console.log(`[resetStoryState][${id}] Resetting UI and state.`); const storyElement = storiesContainer.querySelector(`.story[data-id="${CSS.escape(id)}"]`); if (storyElement) { const statusIndicator = storyElement.querySelector('.status-indicator'); const playButton = storyElement.querySelector('.btn-play'); const pauseButton = storyElement.querySelector('.btn-pause'); const stopButton = storyElement.querySelector('.btn-stop'); if (statusIndicator) { statusIndicator.classList.remove('status-active'); statusIndicator.style.animationPlayState = ''; } if (playButton) playButton.disabled = false; if (pauseButton) { pauseButton.disabled = true; pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause'; } if (stopButton) stopButton.disabled = true; }
+        if (speechSynthesisMap[id]) { delete speechSynthesisMap[id]; console.log(`[resetStoryState][${id}] Removed data from map.`); }
+        if (currentlyPlaying === id) { currentlyPlaying = null; console.log(`[resetStoryState][${id}] Cleared currentlyPlaying.`); }
     }
-
-    function resetStoryState(id) {
-        console.log(`[resetStoryState][${id}] Resetting UI and state.`);
-        // ... (Reset UI inchangé) ...
-         const storyElement = storiesContainer.querySelector(`.story[data-id="${CSS.escape(id)}"]`);
-        if (storyElement) {
-            const statusIndicator = storyElement.querySelector('.status-indicator');
-            const playButton = storyElement.querySelector('.btn-play');
-            const pauseButton = storyElement.querySelector('.btn-pause');
-            const stopButton = storyElement.querySelector('.btn-stop');
-
-            if (statusIndicator) { statusIndicator.classList.remove('status-active'); statusIndicator.style.animationPlayState = ''; }
-            if (playButton) playButton.disabled = false;
-            if (pauseButton) { pauseButton.disabled = true; pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause'; }
-            if (stopButton) stopButton.disabled = true;
-        }
-
-        if (speechSynthesisMap[id]) {
-            delete speechSynthesisMap[id];
-             console.log(`[resetStoryState][${id}] Removed data from map.`);
-        }
-
-        if (currentlyPlaying === id) {
-            currentlyPlaying = null;
-             console.log(`[resetStoryState][${id}] Cleared currentlyPlaying.`);
-        }
-    }
-
-     function applyIOSAudioHack() { /* ... (Inchangé, moins pertinent ici) ... */ }
-
-    function setupAudio() {
-        // ... (Initialisation par interaction inchangée) ...
-         if (isMobile) {
-            const initAudio = () => {
-                 console.log("[setupAudio] User interaction detected, initializing audio...");
-                 setTimeout(() => {
-                    try {
-                        const silence = new SpeechSynthesisUtterance('');
-                        silence.volume = 0;
-                        window.speechSynthesis.speak(silence);
-                        console.log("[setupAudio] Silent speak potentially initialized audio.");
-                    } catch (e) {
-                        console.error("[setupAudio] Error during init:", e);
-                    }
-                }, 150);
-             };
-             document.body.addEventListener('click', initAudio, { once: true, capture: true });
-             document.body.addEventListener('touchstart', initAudio, { once: true, capture: true });
-        }
-    }
+    function applyIOSAudioHack() { /* ... (inchangé) ... */ if (!/iPhone|iPad|iPod/.test(navigator.userAgent)) return; try { console.log("Executing iOS Hack: pause()/resume()"); window.speechSynthesis.pause(); window.speechSynthesis.resume(); } catch (e) { console.warn("iOS Hack failed:", e); } }
+    function setupAudio() { /* ... (inchangé, avec logs) ... */ if (isMobile) { const initAudio = () => { console.log("[setupAudio] User interaction detected, initializing audio..."); setTimeout(() => { try { const silence = new SpeechSynthesisUtterance(''); silence.volume = 0; window.speechSynthesis.speak(silence); console.log("[setupAudio] Silent speak potentially initialized audio."); } catch (e) { console.error("[setupAudio] Error during init:", e); } }, 150); }; document.body.addEventListener('click', initAudio, { once: true, capture: true }); document.body.addEventListener('touchstart', initAudio, { once: true, capture: true }); } }
 
     document.addEventListener('DOMContentLoaded', () => {
         loadStories();
