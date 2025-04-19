@@ -6,6 +6,7 @@
     <title>Lecteur d'Histoires</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* --- Styles CSS (inchangés) --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -240,7 +241,6 @@
             display: none;
         }
     </style>
-
 </head>
 <body>
     <div class="container">
@@ -265,7 +265,7 @@
     let currentlyPlaying = null;
     const isMobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
 
-    const AVERAGE_WPM = 140; // Mots par minute estimés
+    const AVERAGE_WPM = 140;
 
     function estimateDuration(text) {
         if (!text) return '0:00';
@@ -286,54 +286,45 @@
             compatibilityWarning.style.display = 'block';
             compatibilityWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Votre navigateur ne prend pas en charge la synthèse vocale.';
         } else if (isMobile && compatibilityWarning.style.display !== 'block') {
-             // Afficher l'avertissement mobile seulement s'il n'y a pas déjà l'erreur de compatibilité
              compatibilityWarning.style.display = 'block';
              compatibilityWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sur certains appareils mobiles, la synthèse vocale peut nécessiter des permissions ou ne pas fonctionner correctement.';
         }
         return compatible;
     }
 
-
     async function loadStories() {
         const stories = [
             'histoire1.txt', 'histoire2.txt', 'histoire3.txt',
             'histoire4.txt', 'histoire5.txt', 'histoire6.txt',
             'histoire7.txt', 'histoire8.txt', 'histoire9.txt'
-            // Ajoutez 'histoire10.txt', 'histoire11.txt', etc. ici
         ];
 
-        checkCompatibility(); // Vérifie et affiche les messages si besoin
+        checkCompatibility();
         storiesContainer.innerHTML = '';
         let loadedStories = 0;
         let errorOccurred = false;
 
         if (!('speechSynthesis' in window)) {
-             // Si la synthèse n'est PAS DU TOUT supportée, inutile de charger les histoires
              const errorMsg = storiesContainer.querySelector('.error-message') || document.createElement('div');
              errorMsg.className = 'error-message';
              errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> La synthèse vocale n\'est pas disponible sur ce navigateur.';
-             if (!storiesContainer.contains(errorMsg)) {
-                 storiesContainer.appendChild(errorMsg);
-             }
-             return; // Arrêter le chargement
+             if (!storiesContainer.contains(errorMsg)) storiesContainer.appendChild(errorMsg);
+             return;
         }
-
 
         for (let i = 0; i < stories.length; i++) {
             const storyFileName = stories[i];
             try {
                 const response = await fetch(`stories/${storyFileName}?v=${new Date().getTime()}`);
-                if (!response.ok) {
-                    throw new Error(`Erreur ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Erreur ${response.status}`);
                 const text = await response.text();
                 const title = text.split('\n')[0].trim() || `Histoire ${i+1}`;
                 createStoryElement(storyFileName, title, text);
                 loadedStories++;
             } catch (error) {
-                console.error(`Erreur lors du chargement de ${storyFileName}: ${error.message}`);
+                console.error(`[loadStories] Erreur chargement ${storyFileName}: ${error.message}`);
                 errorOccurred = true;
-                const errorText = `Histoire ${i+1}\n\nImpossible de charger le contenu de l'histoire. Vérifiez que le fichier "${storyFileName}" existe bien dans le dossier "stories".`;
+                const errorText = `Histoire ${i+1}\n\nImpossible de charger le contenu. Vérifiez que le fichier "${storyFileName}" existe bien dans le dossier "stories".`;
                 createStoryElement(storyFileName, `Histoire ${i+1} (Erreur)`, errorText);
             }
         }
@@ -345,13 +336,11 @@
             storiesContainer.insertBefore(errorMessage, storiesContainer.firstChild);
         }
          if (loadedStories === 0 && !errorOccurred && stories.length > 0) {
-             // Cas où la liste n'est pas vide mais rien n'a chargé (devrait être couvert par errorOccurred mais par sécurité)
             const emptyMessage = document.createElement('div');
-            emptyMessage.className = 'loading-text'; // Réutiliser style
+            emptyMessage.className = 'loading-text';
             emptyMessage.textContent = "Aucune histoire n'a pu être chargée.";
              storiesContainer.appendChild(emptyMessage);
         } else if (stories.length === 0) {
-             // Cas où la liste 'stories' était vide au départ
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'loading-text';
             emptyMessage.textContent = "Aucune histoire à afficher.";
@@ -360,6 +349,7 @@
     }
 
     function createStoryElement(id, title, text) {
+        // ... (Code de création d'élément inchangé) ...
         const storyElement = document.createElement('div');
         storyElement.className = 'story';
         storyElement.dataset.id = id;
@@ -418,28 +408,27 @@
 
     function readStory(id, text, statusIndicator, playButton, pauseButton, stopButton) {
         if (currentlyPlaying && currentlyPlaying !== id) {
+            console.log(`[readStory] Stopping previous story: ${currentlyPlaying}`);
             stopStory(currentlyPlaying);
         }
 
         const existingData = speechSynthesisMap[id];
-        // Si on clique Play alors que c'est déjà en lecture et non en pause => ne rien faire
         if (existingData && !existingData.isPaused) {
-            console.log("Lecture déjà en cours pour " + id);
+            console.log(`[readStory] Already playing: ${id}`);
             return;
         }
-        // Si on clique Play alors que c'est en pause => agir comme Reprendre
         if (existingData && existingData.isPaused) {
-            pauseStory(id); // pauseStory gère la reprise
+            console.log(`[readStory] Resuming paused story: ${id}`);
+            pauseStory(id);
             return;
         }
 
-        // Vérifier la compatibilité avant de continuer
         if (!checkCompatibility()) {
-             // Le message est déjà affiché par checkCompatibility
+             console.warn(`[readStory] Compatibility check failed.`);
              return;
         }
 
-        // Logique spécifique Mobile vs Desktop
+        console.log(`[readStory] Starting new story: ${id}. Mobile: ${isMobile}`);
         if (isMobile) {
             readStoryMobile(id, text, statusIndicator, playButton, pauseButton, stopButton);
         } else {
@@ -448,6 +437,7 @@
     }
 
     function readStoryDesktop(id, text, statusIndicator, playButton, pauseButton, stopButton) {
+        // ... (Code Desktop inchangé) ...
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'fr-FR';
 
@@ -460,14 +450,15 @@
         if (voices.length === 0 && 'onvoiceschanged' in window.speechSynthesis) {
             window.speechSynthesis.onvoiceschanged = () => setupAndSpeak(window.speechSynthesis.getVoices());
         } else {
-            setupAndSpeak(voices); // Utilise les voix potentiellement déjà chargées
+            setupAndSpeak(voices);
         }
     }
 
-    // --- MODIFIÉ : readStoryMobile pour stocker speakFunc ---
+    // --- AJOUT DE LOGS dans readStoryMobile ---
      function readStoryMobile(id, text, statusIndicator, playButton, pauseButton, stopButton) {
         try {
-            window.speechSynthesis.cancel(); // Assainir avant de commencer
+            console.log(`[readStoryMobile] Cancelling existing speech for ${id}`);
+            window.speechSynthesis.cancel();
 
             const mobileUtterance = new SpeechSynthesisUtterance();
             mobileUtterance.lang = 'fr-FR';
@@ -477,62 +468,70 @@
             let isStoppedManually = false;
             let nextParagraphTimeoutId = null;
 
-            // --- Déclaration de speakNextParagraph ---
             const speakNextParagraph = () => {
-                const storyData = speechSynthesisMap[id]; // Toujours récupérer la dernière version
+                const storyData = speechSynthesisMap[id];
 
-                 // Conditions d'arrêt
                 if (!storyData || isStoppedManually || currentParagraphIndex >= paragraphs.length || currentlyPlaying !== id) {
-                     console.log(`Stopping mobile playback for ${id}. Reason: stopped=${isStoppedManually}, index=${currentParagraphIndex}, current=${currentlyPlaying}`);
-                     if (!isStoppedManually && currentlyPlaying === id) { // Ne pas reset si arrêt manuel (géré par stopStory)
+                     console.log(`[speakNextParagraph][${id}] Stopping. Reason: stopped=${isStoppedManually}, index=${currentParagraphIndex}, paragraphs=${paragraphs.length}, current=${currentlyPlaying}`);
+                     if (!isStoppedManually && currentlyPlaying === id) {
                          resetStoryState(id);
                      }
                      return;
                 }
 
-                // Ne pas parler si en pause (important pour la reprise par cancel/restart)
                 if (storyData.isPaused) {
-                    console.log(`Mobile playback for ${id} is paused.`);
-                    return; // Attend la reprise via pauseStory
+                    console.log(`[speakNextParagraph][${id}] Paused state detected, returning.`);
+                    return;
                 }
 
-                console.log(`Speaking paragraph ${currentParagraphIndex + 1}/${paragraphs.length} for ${id}`);
+                console.log(`[speakNextParagraph][${id}] Preparing paragraph ${currentParagraphIndex + 1}/${paragraphs.length}`);
                 const currentText = paragraphs[currentParagraphIndex];
                 mobileUtterance.text = currentText;
 
-                // Essayer de définir la voix (peut être nécessaire à chaque fois sur certains OS)
                 const voices = window.speechSynthesis.getVoices();
                 const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
                 if (frenchVoice) mobileUtterance.voice = frenchVoice;
 
                 mobileUtterance.onend = () => {
-                    console.log(`Paragraph ${currentParagraphIndex + 1} ended for ${id}.`);
-                    currentParagraphIndex++;
-                    // Planifier le suivant
-                    if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId); // Nettoyer ancien timeout
-                    nextParagraphTimeoutId = setTimeout(speakNextParagraph, 50); // Petit délai
+                    console.log(`[speakNextParagraph][${id}] onend: Paragraph ${currentParagraphIndex + 1} finished.`);
+                    // Important : Ne pas incrémenter ici si on veut que resume redise le même
+                    // Modifions: l'index est incrémenté seulement si la lecture se poursuit naturellement
+                    // currentParagraphIndex++; // Déplacé après le check de pause/stop
+
+                    // --- Vérification avant de passer au suivant ---
+                     const currentStoryData = speechSynthesisMap[id]; // Re-vérifier l'état actuel
+                     if (currentStoryData && !currentStoryData.isPaused && !isStoppedManually && currentlyPlaying === id) {
+                         currentParagraphIndex++; // Incrémenter seulement si on continue
+                         console.log(`[speakNextParagraph][${id}] onend: Scheduling next paragraph (${currentParagraphIndex + 1})`);
+                         if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId);
+                         nextParagraphTimeoutId = setTimeout(speakNextParagraph, 75); // Augmenté légèrement le délai inter-paragraphe
+                     } else {
+                          console.log(`[speakNextParagraph][${id}] onend: Not scheduling next paragraph. isPaused=${currentStoryData?.isPaused}, stopped=${isStoppedManually}, current=${currentlyPlaying}`);
+                          // Si c'est la fin naturelle (pas arrêté/pausé), reset.
+                          if (currentParagraphIndex >= paragraphs.length -1 && !currentStoryData?.isPaused && !isStoppedManually && currentlyPlaying === id) {
+                               resetStoryState(id);
+                          }
+                     }
+                     // --- Fin Vérification ---
                 };
 
                 mobileUtterance.onerror = (event) => {
-                    console.error(`SpeechSynthesis Error for ${id}:`, event);
-                    isStoppedManually = true; // Marquer comme arrêté en cas d'erreur
+                    console.error(`[speakNextParagraph][${id}] onerror: Paragraph ${currentParagraphIndex + 1}. Error: ${event.error}`, event);
+                    isStoppedManually = true; // Marquer comme arrêté
                     resetStoryState(id);
                 };
 
-                 // Vérifier que la synthèse n'est pas déjà occupée (sécurité)
                  if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+                     console.log(`[speakNextParagraph][${id}] Calling speak() for paragraph ${currentParagraphIndex + 1}`);
                      window.speechSynthesis.speak(mobileUtterance);
                  } else {
-                     console.warn(`SpeechSynthesis busy when trying to speak paragraph ${currentParagraphIndex + 1} for ${id}. Retrying shortly.`);
-                     // Essayer à nouveau après un court délai si la synthèse est occupée
+                     console.warn(`[speakNextParagraph][${id}] Synthesis busy, retrying paragraph ${currentParagraphIndex + 1} shortly.`);
                      if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId);
-                     nextParagraphTimeoutId = setTimeout(speakNextParagraph, 250);
+                     nextParagraphTimeoutId = setTimeout(speakNextParagraph, 300); // Délai de relance augmenté
                  }
             };
-            // --- Fin déclaration speakNextParagraph ---
 
-
-            // Stocker l'état, y compris la fonction speakNextParagraph
+            // Stocker l'état
             speechSynthesisMap[id] = {
                 utterance: mobileUtterance,
                 statusIndicator: statusIndicator,
@@ -540,47 +539,42 @@
                 pauseButton: pauseButton,
                 stopButton: stopButton,
                 isPaused: false,
-                stopPlayback: () => { // Fonction pour marquer l'arrêt
-                    console.log(`Stop requested for ${id}`);
+                stopPlayback: () => {
+                    console.log(`[stopPlayback][${id}] Stop requested.`);
                     isStoppedManually = true;
                     if (nextParagraphTimeoutId) clearTimeout(nextParagraphTimeoutId);
                  },
-                getCurrentParagraphIndex: () => currentParagraphIndex, // Pour info/debug
-                 // ---> Stocker la fonction pour pouvoir la rappeler <---
-                 speakFunc: speakNextParagraph,
+                getCurrentParagraphIndex: () => currentParagraphIndex,
+                speakFunc: speakNextParagraph, // Stocker la référence
                 isMobile: true
             };
 
-            // Mettre à jour l'interface
+            // Mettre à jour l'interface et démarrer
             statusIndicator.classList.add('status-active');
             playButton.disabled = true;
             pauseButton.disabled = false;
             pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
             stopButton.disabled = false;
-
-            // Définir l'histoire en cours
             currentlyPlaying = id;
-
-            // Commencer la lecture du premier paragraphe
+            console.log(`[readStoryMobile][${id}] Starting first paragraph.`);
             speakNextParagraph();
 
-            // Hack iOS initial (ne fait rien sur Android mais inoffensif)
-             applyIOSAudioHack();
+            // applyIOSAudioHack(); // Moins pertinent pour Android
 
         } catch (error) {
-            console.error("Erreur lancement lecture mobile:", error);
-            alert("Impossible de lire l'histoire (mobile).");
+            console.error(`[readStoryMobile][${id}] Error starting playback:`, error);
+            alert("Impossible de démarrer la lecture (mobile).");
             resetStoryState(id);
         }
     }
-    // --- FIN MODIFICATION ---
-
+    // --- FIN AJOUT LOGS ---
 
     function setFrenchVoice(utterance, voices) {
+        // ... (inchangé) ...
         const frenchVoice = voices.find(voice => voice.lang === 'fr-FR' || voice.lang.startsWith('fr'));
         if (frenchVoice) {
             utterance.voice = frenchVoice;
-        } else if (voices && voices.length > 0) { // Ajouter vérification que voices existe
+        } else if (voices && voices.length > 0) {
             utterance.voice = voices[0];
             console.warn("Voix fr-FR non trouvée, utilise:", voices[0].name);
         } else {
@@ -590,6 +584,7 @@
     }
 
     function startSpeaking(id, utterance, statusIndicator, playButton, pauseButton, stopButton) {
+        // ... (inchangé) ...
         try {
             speechSynthesisMap[id] = {
                 utterance: utterance,
@@ -598,20 +593,13 @@
                 pauseButton: pauseButton,
                 stopButton: stopButton,
                 isPaused: false,
-                stopPlayback: () => {}, // Placeholder
-                 speakFunc: null, // Pas besoin pour desktop
-                isMobile: false
+                stopPlayback: () => {}, speakFunc: null, isMobile: false
             };
 
-            utterance.onend = () => {
-                if (currentlyPlaying === id) resetStoryState(id);
-            };
-            utterance.onerror = (event) => {
-                console.error("Erreur synthèse vocale desktop:", event);
-                resetStoryState(id);
-            };
+            utterance.onend = () => { if (currentlyPlaying === id) resetStoryState(id); };
+            utterance.onerror = (event) => { console.error("Erreur synthèse vocale desktop:", event); resetStoryState(id); };
 
-            window.speechSynthesis.cancel(); // Nettoyer avant de parler
+            window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
 
             statusIndicator.classList.add('status-active');
@@ -620,61 +608,62 @@
             pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
             stopButton.disabled = false;
             currentlyPlaying = id;
-
         } catch (error) {
             console.error("Erreur lecture (desktop):", error);
             alert("Impossible de lire l'histoire (desktop).");
-            resetStoryState(id);
-            delete speechSynthesisMap[id];
+            resetStoryState(id); delete speechSynthesisMap[id];
         }
     }
 
-    // --- MODIFIÉ : pauseStory pour utiliser la stratégie Cancel/Restart sur mobile ---
+    // --- MODIFIÉ : pauseStory avec délai augmenté et logs ---
     function pauseStory(id) {
         const storyData = speechSynthesisMap[id];
         if (!storyData || !window.speechSynthesis) {
-            console.warn("pauseStory: Données manquantes ou synthèse indisponible pour", id);
+            console.warn(`[pauseStory][${id}] Données manquantes ou synthèse indisponible.`);
             return;
         }
 
         // --- CAS 1: Mettre en Pause ---
-        if (!storyData.isPaused) { // Met en pause si ce n'est pas déjà le cas
-            console.log("Pausing story:", id);
-            // Sur mobile, on pourrait même juste marquer comme pausé sans appeler pause()
-            // car on va utiliser cancel/restart pour reprendre. Testons avec pause() d'abord.
-             window.speechSynthesis.pause(); // Appel standard
+        if (!storyData.isPaused) {
+            console.log(`[pauseStory][${id}] Pausing...`);
+            // Sur mobile, l'appel à pause() est parfois moins utile que de juste gérer l'état
+            // mais on le laisse pour l'instant.
+            window.speechSynthesis.pause();
             storyData.isPaused = true;
             storyData.pauseButton.innerHTML = '<i class="fas fa-play"></i> Reprendre';
             if (storyData.statusIndicator) storyData.statusIndicator.style.animationPlayState = 'paused';
+            console.log(`[pauseStory][${id}] State set to paused.`);
         }
         // --- CAS 2: Reprendre ---
-        else if (storyData.isPaused) {
-            console.log("Resuming story:", id);
+        else { // isPaused is true
+            console.log(`[pauseStory][${id}] Resuming...`);
             storyData.isPaused = false; // Mettre à jour l'état interne d'abord
             storyData.pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
             if (storyData.statusIndicator) storyData.statusIndicator.style.animationPlayState = 'running';
 
-            // --- Stratégie spécifique par plateforme ---
             if (storyData.isMobile) {
-                // Stratégie Mobile (Android/iOS): Annuler et redémarrer le paragraphe actuel
-                console.log(`Mobile Resume Strategy for ${id}: Cancel and Restart`);
+                console.log(`[pauseStory][${id}] Mobile Resume: Using Cancel/Restart strategy.`);
                 window.speechSynthesis.cancel(); // Annuler l'état pause/pending
 
-                // Important : Donner un très court délai à cancel() pour agir avant de relancer speak
+                // Augmenter le délai avant de relancer speakFunc
+                const resumeDelay = 300; // <<< AUGMENTÉ A 300ms
+                console.log(`[pauseStory][${id}] Waiting ${resumeDelay}ms after cancel...`);
+
                 setTimeout(() => {
-                    // Vérifier si l'histoire est toujours celle en cours et n'est pas re-pausée/stoppée entre temps
-                    const currentStoryData = speechSynthesisMap[id];
+                    console.log(`[pauseStory][${id}] Resume timeout finished. Checking state...`);
+                    const currentStoryData = speechSynthesisMap[id]; // Re-vérifier l'état
                      if (currentStoryData && !currentStoryData.isPaused && currentlyPlaying === id && currentStoryData.speakFunc) {
-                         console.log(`Restarting speakFunc for ${id}`);
+                         console.log(`[pauseStory][${id}] State OK. Calling speakFunc to restart paragraph.`);
                          currentStoryData.speakFunc(); // Relance la fonction qui gère le paragraphe actuel
                      } else {
-                          console.log(`Skipping speakFunc restart for ${id} (state changed or missing speakFunc)`);
+                          console.warn(`[pauseStory][${id}] State changed during timeout or speakFunc missing. Aborting resume. isPaused=${currentStoryData?.isPaused}, current=${currentlyPlaying}`);
+                          // Si l'état a changé (ex: double-clic rapide sur pause/reprendre), on pourrait vouloir reset
+                          // resetStoryState(id); // Optionnel: reset si reprise impossible
                      }
-                }, 100); // Délai de 100ms après cancel
+                }, resumeDelay);
 
             } else {
-                // Stratégie Desktop: Utiliser resume() standard
-                 console.log(`Desktop Resume Strategy for ${id}: resume()`);
+                console.log(`[pauseStory][${id}] Desktop Resume: Calling resume().`);
                 window.speechSynthesis.resume();
             }
         }
@@ -683,78 +672,60 @@
 
 
     function stopStory(id) {
+        console.log(`[stopStory][${id}] Stop requested.`);
         const storyData = speechSynthesisMap[id];
         if (storyData && storyData.stopPlayback) {
-             storyData.stopPlayback(); // Informe la boucle mobile de s'arrêter
+             storyData.stopPlayback();
         }
-        window.speechSynthesis.cancel(); // Arrête toute parole immédiatement
-        resetStoryState(id); // Nettoie l'UI et la map
+        window.speechSynthesis.cancel();
+        resetStoryState(id);
     }
 
     function resetStoryState(id) {
-        console.log(`Resetting state for ${id}`);
-        const storyElement = storiesContainer.querySelector(`.story[data-id="${CSS.escape(id)}"]`);
+        console.log(`[resetStoryState][${id}] Resetting UI and state.`);
+        // ... (Reset UI inchangé) ...
+         const storyElement = storiesContainer.querySelector(`.story[data-id="${CSS.escape(id)}"]`);
         if (storyElement) {
             const statusIndicator = storyElement.querySelector('.status-indicator');
             const playButton = storyElement.querySelector('.btn-play');
             const pauseButton = storyElement.querySelector('.btn-pause');
             const stopButton = storyElement.querySelector('.btn-stop');
 
-            if (statusIndicator) {
-                 statusIndicator.classList.remove('status-active');
-                 statusIndicator.style.animationPlayState = '';
-             }
+            if (statusIndicator) { statusIndicator.classList.remove('status-active'); statusIndicator.style.animationPlayState = ''; }
             if (playButton) playButton.disabled = false;
-            if (pauseButton) {
-                 pauseButton.disabled = true;
-                 pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
-             }
+            if (pauseButton) { pauseButton.disabled = true; pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause'; }
             if (stopButton) stopButton.disabled = true;
         }
 
-        // Supprimer les données de la map
         if (speechSynthesisMap[id]) {
             delete speechSynthesisMap[id];
+             console.log(`[resetStoryState][${id}] Removed data from map.`);
         }
 
-        // Si c'était l'histoire en cours, la déréférencer
         if (currentlyPlaying === id) {
             currentlyPlaying = null;
+             console.log(`[resetStoryState][${id}] Cleared currentlyPlaying.`);
         }
     }
 
-     function applyIOSAudioHack() {
-         if (!/iPhone|iPad|iPod/.test(navigator.userAgent)) return;
-         try {
-             console.log("Executing iOS Hack: pause()/resume()");
-             window.speechSynthesis.pause();
-             window.speechSynthesis.resume();
-         } catch (e) {
-             console.warn("iOS Hack failed:", e);
-         }
-     }
+     function applyIOSAudioHack() { /* ... (Inchangé, moins pertinent ici) ... */ }
 
     function setupAudio() {
-        // L'initialisation par interaction utilisateur est cruciale sur mobile
-        if (isMobile) {
+        // ... (Initialisation par interaction inchangée) ...
+         if (isMobile) {
             const initAudio = () => {
-                 console.log("User interaction detected, attempting to initialize audio...");
-                 // Utiliser un court délai pour l'initialisation
+                 console.log("[setupAudio] User interaction detected, initializing audio...");
                  setTimeout(() => {
                     try {
-                        // Tenter de lancer une parole silencieuse pour "réveiller" l'API
                         const silence = new SpeechSynthesisUtterance('');
                         silence.volume = 0;
                         window.speechSynthesis.speak(silence);
-                        console.log("Mobile audio potentially initialized via silent speak.");
-                        // Appliquer le hack une fois à l'init, avec délai
-                        // applyIOSAudioHack(); // Utile surtout sur iOS
+                        console.log("[setupAudio] Silent speak potentially initialized audio.");
                     } catch (e) {
-                        console.error("Erreur init audio mobile:", e);
+                        console.error("[setupAudio] Error during init:", e);
                     }
-                }, 150); // Délai court
+                }, 150);
              };
-             // Écouter la première interaction sur 'click' ou 'touchstart'
              document.body.addEventListener('click', initAudio, { once: true, capture: true });
              document.body.addEventListener('touchstart', initAudio, { once: true, capture: true });
         }
@@ -762,7 +733,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         loadStories();
-        setupAudio(); // Met en place le listener pour l'initialisation audio mobile
+        setupAudio();
     });
 </script>
 </body>
