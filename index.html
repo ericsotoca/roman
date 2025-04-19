@@ -615,7 +615,7 @@
         }
     }
 
-    // --- MODIFIÉ : pauseStory avec délai augmenté et logs ---
+    // --- NOUVELLE VERSION de pauseStory (Stratégie Reprise Mobile Simplifiée) ---
     function pauseStory(id) {
         const storyData = speechSynthesisMap[id];
         if (!storyData || !window.speechSynthesis) {
@@ -626,9 +626,8 @@
         // --- CAS 1: Mettre en Pause ---
         if (!storyData.isPaused) {
             console.log(`[pauseStory][${id}] Pausing...`);
-            // Sur mobile, l'appel à pause() est parfois moins utile que de juste gérer l'état
-            // mais on le laisse pour l'instant.
-            window.speechSynthesis.pause();
+            // Appel standard, même si l'efficacité est variable sur mobile
+             window.speechSynthesis.pause();
             storyData.isPaused = true;
             storyData.pauseButton.innerHTML = '<i class="fas fa-play"></i> Reprendre';
             if (storyData.statusIndicator) storyData.statusIndicator.style.animationPlayState = 'paused';
@@ -642,33 +641,39 @@
             if (storyData.statusIndicator) storyData.statusIndicator.style.animationPlayState = 'running';
 
             if (storyData.isMobile) {
-                console.log(`[pauseStory][${id}] Mobile Resume: Using Cancel/Restart strategy.`);
-                window.speechSynthesis.cancel(); // Annuler l'état pause/pending
+                // Stratégie Mobile Simplifiée: Tenter resume() ET relancer speakFunc()
+                console.log(`[pauseStory][${id}] Mobile Resume: Trying resume() AND restarting speakFunc().`);
 
-                // Augmenter le délai avant de relancer speakFunc
-                const resumeDelay = 300; // <<< AUGMENTÉ A 300ms
-                console.log(`[pauseStory][${id}] Waiting ${resumeDelay}ms after cancel...`);
+                // 1. Tenter resume() (peut échouer silencieusement)
+                window.speechSynthesis.resume();
 
-                setTimeout(() => {
-                    console.log(`[pauseStory][${id}] Resume timeout finished. Checking state...`);
-                    const currentStoryData = speechSynthesisMap[id]; // Re-vérifier l'état
-                     if (currentStoryData && !currentStoryData.isPaused && currentlyPlaying === id && currentStoryData.speakFunc) {
-                         console.log(`[pauseStory][${id}] State OK. Calling speakFunc to restart paragraph.`);
-                         currentStoryData.speakFunc(); // Relance la fonction qui gère le paragraphe actuel
-                     } else {
-                          console.warn(`[pauseStory][${id}] State changed during timeout or speakFunc missing. Aborting resume. isPaused=${currentStoryData?.isPaused}, current=${currentlyPlaying}`);
-                          // Si l'état a changé (ex: double-clic rapide sur pause/reprendre), on pourrait vouloir reset
-                          // resetStoryState(id); // Optionnel: reset si reprise impossible
+                // 2. Relancer immédiatement la fonction de lecture du paragraphe actuel
+                //    (au cas où resume() n'aurait rien fait)
+                if (storyData.speakFunc && currentlyPlaying === id) {
+                     console.log(`[pauseStory][${id}] Immediately calling speakFunc() after resume().`);
+                     // Pas de setTimeout, on essaie direct.
+                     // speakFunc va vérifier si isPaused est false (ce qui est le cas)
+                     // et devrait tenter de parler.
+                     try {
+                        storyData.speakFunc();
+                     } catch(e) {
+                         console.error(`[pauseStory][${id}] Error calling speakFunc directly on resume:`, e);
+                         resetStoryState(id); // Reset si l'appel direct échoue
                      }
-                }, resumeDelay);
+                } else {
+                     console.warn(`[pauseStory][${id}] Cannot call speakFunc on resume (missing or state changed).`);
+                     // Si speakFunc manque ou l'état a changé, on reset pour être sûr
+                      resetStoryState(id);
+                }
 
             } else {
-                console.log(`[pauseStory][${id}] Desktop Resume: Calling resume().`);
+                // Stratégie Desktop: Utiliser resume() standard
+                 console.log(`[pauseStory][${id}] Desktop Resume: Calling resume().`);
                 window.speechSynthesis.resume();
             }
         }
     }
-    // --- FIN MODIFICATION ---
+    // --- FIN NOUVELLE VERSION ---
 
 
     function stopStory(id) {
